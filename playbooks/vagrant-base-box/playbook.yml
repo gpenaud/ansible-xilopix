@@ -1,0 +1,35 @@
+---
+- name: configure a vagrant base box
+  hosts: all
+
+  vars:
+    ansible_become: yes
+    user: {{ lookup('env': 'ANSIBLE_PERSONAL_USER') }}
+
+  tasks:
+    - name: install some base packages
+      apt:
+        name: "{{ item }}"
+        update_cache: yes
+      with_items:
+        - git
+        - sudo
+
+    - name: "create {{ user }} user in box"
+      user:
+        name: "{{ user }}"
+        password: "{{ lookup('env', 'ANSIBLE_PERSONAL_PASSWORD') }}"
+        comment: "{{ user }} only user, accessible through ssh with personal key"
+        group: "{{ user }}"
+        groups: docker,admin,sudo
+        append: yes
+
+    - name: "set authorized key took from {{ user }}"
+      authorized_key:
+        user: "{{ user }}"
+        state: present
+        key: "{{ lookup('env', 'ANSIBLE_PERSONAL_CONFIG_PATH') }}"
+
+  roles:
+    - role: docker
+      tags: docker
