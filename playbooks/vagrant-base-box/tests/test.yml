@@ -53,6 +53,17 @@
     - name: install goss to server (part 2)
       command: bash /tmp/goss_install.sh
       become: yes
+
+  post_tasks:
+    - name: upload goss validation file
+      copy:
+        src: validation.yml
+        dest: /etc/server-validation.yml
+        mode: 0644
+      become: yes
+      tags:
+        - goss
+
   # roles:
   #   - role: docker
   #     tags: docker

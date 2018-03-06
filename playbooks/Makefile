@@ -1,12 +1,11 @@
 INVENTORY=${PWD}/../inventories/dynamic/vagrant
 
-
 ifndef playbook
 $(error variable "playbook" should be set)
 endif
 
 .ONESHELL:
-all: check test
+# all: check test
 
 # check-syntax: clean
 # 	find . -name '*.py' | xargs -I{} $(PY) -m py_compile {}
@@ -23,10 +22,9 @@ deploy:
 
 validate:
 	@ cd $(playbook)/tests
-	@ SSH_PARAMETERS := $(shell ruby $(INVENTORY)/vagrant.rb -g)
-	@ ssh $(SSH_PARAMETERS) goss -g validate
+	@ ssh -x -t $(shell $(INVENTORY)/vagrant.rb -g -d ${PWD}/$(playbook)/tests) goss -g /etc/server-validation.yml validate
 
-test: build deploy
+test: build deploy validate
 
 # check-lint:
 # 	## calling flake8 directly since it's not done by the setup.py's task

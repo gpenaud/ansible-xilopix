@@ -1,10 +1,11 @@
 ---
 - name: configure a vagrant base box
-  hosts: all
+  hosts: test-vagrant-base-box
 
   vars:
-    ansible_become: yes
-    user: {{ lookup('env': 'ANSIBLE_PERSONAL_USER') }}
+    user:     "{{ lookup('env', 'ANSIBLE_PERSONAL_USER') }}"
+    password: "{{ lookup('env', 'ANSIBLE_PERSONAL_PASSWORD') }}"
+    key_file: "{{ lookup('env', 'ANSIBLE_PERSONAL_PUBKEYFILE') }}"
 
   tasks:
     - name: install some base packages
@@ -14,21 +15,52 @@
       with_items:
         - git
         - sudo
+        - curl
+      become: yes
 
     - name: "create {{ user }} user in box"
       user:
         name: "{{ user }}"
-        password: "{{ lookup('env', 'ANSIBLE_PERSONAL_PASSWORD') }}"
+        password: "{{ password }}"
         comment: "{{ user }} only user, accessible through ssh with personal key"
         group: "{{ user }}"
-        groups: docker,admin,sudo
+        groups: adm,sudo
         append: yes
+      become: yes
 
     - name: "set authorized key took from {{ user }}"
       authorized_key:
         user: "{{ user }}"
         state: present
-        key: "{{ lookup('env', 'ANSIBLE_PERSONAL_CONFIG_PATH') }}"
+        key: "{{ lookup('file', key_file) }}"
+
+    - name: checkout dotfiles repository from my personal github account
+      git:
+        repo: "https://github.com/{{ user }}/dotfiles.git"
+        dest: "{{ lookup('env', 'HOME') }}/dotfiles"
+
+    - name: execute setup.sh from dotfiles repository
+      command: "bash {{ lookup('env', 'HOME') }}/dotfiles/setup.sh"
+      environment:
+        DOTFILES_DIR: "{{ lookup('env', 'HOME') }}/dotfiles"
+        DOTFILES_ENV: laptop
+
+    - name: install goss to server (part 1)
+      get_url:
+        url: https://goss.rocks/install
+        dest: /tmp/goss_install.sh
+
+    - name: install goss to server (part 2)
+      command: bash /tmp/goss_install.sh
+      become: yes
+
+  post_tasks:
+    - name: upload goss validation file
+      copy:
+        src: tests/validation.yml
+        dest: /etc/server-validation.yml
+        mode: 0644
+      become: yes
 
   roles:
     - role: docker

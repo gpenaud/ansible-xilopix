@@ -26,6 +26,10 @@ class OptparseOS
         options.show = s
       end
 
+      opts.on('-d DIR', '--directory=DIR', 'change current directory') do |d|
+        options.directory = d
+      end
+
       opts.on_tail("-h", "--help", "Show this message") do
         puts opts
         exit
@@ -41,7 +45,7 @@ end
 #
 def list_running_hosts
     # cmd = "vagrant status --machine-readable"
-    status = %x(vagrant status --machine-readable)
+    status = %x(VAGRANT_CWD=#{$dir} vagrant status --machine-readable)
     hosts = []
 
     status.split("\n").each do |line|
@@ -56,7 +60,7 @@ end
 # get ansible connection details
 #
 def get_host_details host
-  config = %x(vagrant ssh-config #{host})
+  config = %x(VAGRANT_CWD=#{$dir} vagrant ssh-config #{host})
   host, user, port = config.match(/Hostname (.*)\n.*User (.*)\n.*Port (.*)\n/i).captures
 
   {
@@ -69,9 +73,9 @@ end
 # get ssh connection
 #
 def get_ssh
-  config = %x(vagrant ssh-config)
+  config = %x(VAGRANT_CWD=#{$dir} vagrant ssh-config)
   host, user, port = config.match(/Hostname (.*)\n.*User (.*)\n.*Port (.*)\n/i).captures
-  "#{host}:#{port}"
+  puts "#{host} -p #{port}"
 end
 
 #
@@ -80,7 +84,7 @@ end
 def list_vagrant
   inventory = {}
   list_running_hosts.each do |host|
-    inventory[host] = get_host_details host, output
+    inventory[host] = get_host_details host
   end
 
   puts JSON.pretty_generate inventory
@@ -91,6 +95,12 @@ end
 #
 if __FILE__ == $0
   options = OptparseOS.parse(ARGV)
+
+  if options.directory
+    $dir = options.directory
+  else
+    $dir = Dir.pwd
+  end
 
   if options.list
     list_vagrant
