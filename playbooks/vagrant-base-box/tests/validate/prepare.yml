@@ -1,0 +1,19 @@
+---
+- name: run validation on server
+  hosts: test-vagrant-base-box
+
+  tasks:
+    - name: upload goss test file
+      copy:
+        src: check.yml
+        dest: /tmp/check.yml
+
+    - name: validate cookbook
+      goss:
+        path: /tmp/check.yml
+        # format: json
+      register: checked
+
+    - name: display goss results
+      debug:
+        msg: "{{ checked.stdout }}"

@@ -2,7 +2,6 @@
 - name: configure a vagrant base box
   hosts: test-vagrant-base-box
 
-
   vars:
     user:     "{{ lookup('env', 'ANSIBLE_PERSONAL_USER') }}"
     password: "{{ lookup('env', 'ANSIBLE_PERSONAL_PASSWORD') }}"
@@ -16,6 +15,7 @@
       with_items:
         - git
         - sudo
+        - curl
       become: yes
 
     - name: "create {{ user }} user in box"
@@ -45,6 +45,14 @@
         DOTFILES_DIR: "{{ lookup('env', 'HOME') }}/dotfiles"
         DOTFILES_ENV: laptop
 
+    - name: install goss to server (part 1)
+      get_url:
+        url: https://goss.rocks/install
+        dest: /tmp/goss_install.sh
+
+    - name: install goss to server (part 2)
+      command: bash /tmp/goss_install.sh
+      become: yes
   # roles:
   #   - role: docker
   #     tags: docker

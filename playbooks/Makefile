@@ -1,3 +1,6 @@
+INVENTORY=${PWD}/../inventories/dynamic/vagrant
+
+
 ifndef playbook
 $(error variable "playbook" should be set)
 endif
@@ -16,7 +19,12 @@ build:
 
 deploy:
 	@ cd $(playbook)/tests
-	@ ansible-playbook -i ./../../../inventories/dynamic/vagrant playbook.yml
+	@ ansible-playbook -i $(INVENTORY) test.yml
+
+validate:
+	@ cd $(playbook)/tests
+	@ SSH_PARAMETERS := $(shell ruby $(INVENTORY)/vagrant.rb -g)
+	@ ssh $(SSH_PARAMETERS) goss -g validate
 
 test: build deploy
 
