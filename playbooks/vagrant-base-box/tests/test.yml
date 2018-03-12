@@ -18,6 +18,11 @@
         - curl
       become: yes
 
+    - name: "create {{ user }} group in box"
+      group:
+        name: "{{ user }}"
+        state: present
+
     - name: "create {{ user }} user in box"
       user:
         name: "{{ user }}"

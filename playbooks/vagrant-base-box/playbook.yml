@@ -1,6 +1,7 @@
 ---
 - name: configure a vagrant base box
-  hosts: test-vagrant-base-box
+  hosts: vagrant-lxc-base-box
+  become: yes
 
   vars:
     user:     "{{ lookup('env', 'ANSIBLE_PERSONAL_USER') }}"
@@ -16,7 +17,11 @@
         - git
         - sudo
         - curl
-      become: yes
+
+    - name: "create {{ user }} group in box"
+      group:
+        name: "{{ user }}"
+        state: present
 
     - name: "create {{ user }} user in box"
       user:
@@ -26,7 +31,6 @@
         group: "{{ user }}"
         groups: adm,sudo
         append: yes
-      become: yes
 
     - name: "set authorized key took from {{ user }}"
       authorized_key:
@@ -52,7 +56,6 @@
 
     - name: install goss to server (part 2)
       command: bash /tmp/goss_install.sh
-      become: yes
 
   post_tasks:
     - name: upload goss validation file
@@ -60,7 +63,6 @@
         src: tests/validation.yml
         dest: /etc/server-validation.yml
         mode: 0644
-      become: yes
 
   roles:
     - role: docker
