@@ -1,8 +1,10 @@
 ---
 - name: configure a vagrant base box
-  hosts: test-vagrant-base-box
+  hosts: vagrant-box
+  become: yes
 
   vars:
+    dhcp:     no
     user:     "{{ lookup('env', 'ANSIBLE_PERSONAL_USER') }}"
     password: "{{ lookup('env', 'ANSIBLE_PERSONAL_PASSWORD') }}"
     key_file: "{{ lookup('env', 'ANSIBLE_PERSONAL_PUBKEYFILE') }}"
@@ -16,12 +18,14 @@
         - git
         - sudo
         - curl
-      become: yes
 
     - name: "create {{ user }} group in box"
       group:
-        name: "{{ user }}"
+        name: "{{ item }}"
         state: present
+      with_items:
+        - "{{ user }}"
+        - administrator
 
     - name: "create {{ user }} user in box"
       user:
@@ -31,13 +35,50 @@
         group: "{{ user }}"
         groups: adm,sudo
         append: yes
-      become: yes
 
     - name: "set authorized key took from {{ user }}"
       authorized_key:
         user: "{{ user }}"
         state: present
         key: "{{ lookup('file', key_file) }}"
+
+    - name: allow 'administrator' group to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^%administrator'
+        line: '%administrator ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: "add {{ user }} to administrator group"
+      user:
+        state: present
+        name: "{{ user }}"
+        groups: administrator
+        append: yes
+
+    - name: "allow {{ user }} user to have passwordless sudo"
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^{{ user }}'
+        line: '{{ user }} ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: template out interfaces file
+      copy:
+        content: |
+          auto lo
+          iface lo inet loopback
+
+          {% if dhcp %}
+          auto eth0
+          iface eth0 inet dhcp
+          {% else %}
+          iface eth0 inet manual
+          {% endif %}
+        dest: /etc/network/interfaces
+        backup: yes
 
     - name: checkout dotfiles repository from my personal github account
       git:
@@ -57,17 +98,6 @@
 
     - name: install goss to server (part 2)
       command: bash /tmp/goss_install.sh
-      become: yes
-
-  post_tasks:
-    - name: upload goss validation file
-      copy:
-        src: validation.yml
-        dest: /etc/server-validation.yml
-        mode: 0644
-      become: yes
-      tags:
-        - goss
 
   # roles:
   #   - role: docker

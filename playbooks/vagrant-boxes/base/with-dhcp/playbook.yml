@@ -1,9 +1,10 @@
 ---
 - name: configure a vagrant base box
-  hosts: vagrant-lxc-base-box
+  hosts: vagrant-box
   become: yes
 
   vars:
+    dhcp:     yes
     user:     "{{ lookup('env', 'ANSIBLE_PERSONAL_USER') }}"
     password: "{{ lookup('env', 'ANSIBLE_PERSONAL_PASSWORD') }}"
     key_file: "{{ lookup('env', 'ANSIBLE_PERSONAL_PUBKEYFILE') }}"
@@ -20,8 +21,11 @@
 
     - name: "create {{ user }} group in box"
       group:
-        name: "{{ user }}"
+        name: "{{ item }}"
         state: present
+      with_items:
+        - "{{ user }}"
+        - administrator
 
     - name: "create {{ user }} user in box"
       user:
@@ -37,6 +41,44 @@
         user: "{{ user }}"
         state: present
         key: "{{ lookup('file', key_file) }}"
+
+    - name: allow 'administrator' group to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^%administrator'
+        line: '%administrator ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: "add {{ user }} to administrator group"
+      user:
+        state: present
+        name: "{{ user }}"
+        groups: administrator
+        append: yes
+
+    - name: "allow {{ user }} user to have passwordless sudo"
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^{{ user }}'
+        line: '{{ user }} ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: template out interfaces file
+      copy:
+        content: |
+          auto lo
+          iface lo inet loopback
+
+          {% if dhcp %}
+          auto eth0
+          iface eth0 inet dhcp
+          {% else %}
+          iface eth0 inet manual
+          {% endif %}
+        dest: /etc/network/interfaces
+        backup: yes
 
     - name: checkout dotfiles repository from my personal github account
       git:
@@ -57,13 +99,6 @@
     - name: install goss to server (part 2)
       command: bash /tmp/goss_install.sh
 
-  post_tasks:
-    - name: upload goss validation file
-      copy:
-        src: tests/validation.yml
-        dest: /etc/server-validation.yml
-        mode: 0644
-
-  roles:
-    - role: docker
-      tags: docker
+  # roles:
+  #   - role: docker
+  #     tags: docker
