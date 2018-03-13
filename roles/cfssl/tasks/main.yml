@@ -1,0 +1,6 @@
+---
+- name: main - install cloudflare ssl binaries
+  include: install.yml
+  tags:
+    - install
+

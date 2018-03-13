@@ -1,0 +1,22 @@
+Vagrant::DEFAULT_SERVER_URL.replace('https://vagrantcloud.com')
+
+IMAGE = 'base-with-dhcp'
+NODES = [
+  'cfssl-01',
+  'cfssl-02'
+]
+
+CONFIGURATION_VERSION = 2
+Vagrant.configure(CONFIGURATION_VERSION) do |config|
+  config.vm.box = IMAGE
+
+  NODES.each do |node_name|
+    config.vm.define node_name do |node|
+      node.vm.hostname = node_name
+      node.vm.provider :lxc do |lxc|
+        lxc.container_name  = :machine
+        lxc.customize 'network.link', 'lxc-bridge'
+      end
+    end
+  end
+end

@@ -1,0 +1,50 @@
+---
+# cloudflare ssl
+cfssl_binary_url: "https://pkg.cfssl.org/R1.2/cfssl_linux-amd64"
+cfssl_json_binary_url: "https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64"
+
+cfssl_signing_default_expiry: 8760h
+cfssl_signing_profiles:
+  kubernetes:
+    usages:
+      - signing
+      - key encipherment
+      - server auth
+      - client auth
+    expiry: 8760h
+
+cfssl_ca_csr:
+  cn: Kubernetes
+  key:
+    algo: rsa
+    size: 2048
+  names:
+    - C: FR
+      L: Paris
+      O: Kubernetes
+      OU: Cluster
+      ST: Ile-de -France
+
+cfssl_clients_csr:
+  cn: Kubernetes
+  hosts:
+    - worker0.example.com
+    - worker1.example.com
+    - worker2.example.com
+    - etcd0.example.com
+    - etcd1.example.com
+    - etcd2.example.com
+    - master0.example.com
+    - master1.example.com
+    - master2.example.com
+    - 10.32.0.1
+    - 127.0.0.1
+  key:
+    algo: rsa
+    size: 2048
+  names:
+    - C: FR
+      L: Paris
+      O: Kubernetes
+      OU: Cluster
+      ST: Ile-de -France

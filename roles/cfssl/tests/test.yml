@@ -1,0 +1,11 @@
+---
+- name: configure a vagrant base box
+  hosts:
+    - cfssl-01
+    - cfssl-02
+  become: yes
+
+  roles:
+    - cfssl
+
+
