@@ -1,15 +1,51 @@
 ---
 
-- name: install - download cfssl binaries
-  get_url:
-    url: "{{ binary.url }}"
-    dest: "{{ binary.file }}"
-    mode: 0755
-  with_items:
-    - url: "{{ cfssl_binary_url }}"
-      file: /usr/local/bin/cfssl
-    - url: "{{ cfssl_json_binary_url }}"
-      file: /usr/local/bin/cfssljson
-  loop_control:
-    loop_var: binary
-  become: yes
+- name: full installation of templates - (done locally)
+  block:
+  - name: create certs directory
+    file:
+      state: directory
+      path: "{{ cfssl_generation_local_certs_path }}/bin"
+
+  - name: install - download cfssl binaries
+    get_url:
+      url: "{{ binary.url }}"
+      dest: "{{ binary.file }}"
+      mode: 0755
+    with_items:
+      - url: "{{ cfssl_binary_url }}"
+        file: "{{ cfssl_generation_local_certs_path }}/bin/cfssl"
+      - url: "{{ cfssl_json_binary_url }}"
+        file: "{{ cfssl_generation_local_certs_path }}/bin/cfssljson"
+    loop_control:
+      loop_var: binary
+
+  - name: import ca-config.json template
+    template:
+      src: templates/ca-config.json.j2
+      dest: "{{ cfssl_generation_local_certs_path }}/ca-config.json"
+
+  - name: import json certificates templates
+    template:
+      src: templates/{{ file }}.j2
+      dest: "{{ cfssl_generation_local_certs_path }}/{{ file }}"
+    with_items:
+      - ca-config.json
+      - ca-csr.json
+      - kubernetes-csr.json
+    loop_control:
+      loop_var: file
+
+  - name: execute cfssl certificate generation commands
+    shell: |
+      bin/cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+      bin/cfssl gencert \
+        -ca=ca.pem \
+        -ca-key=ca-key.pem \
+        -config=ca-config.json \
+        -profile=kubernetes \
+        kubernetes-csr.json | bin/cfssljson -bare kubernetes
+    args:
+      chdir: "{{ cfssl_generation_local_certs_path }}"
+      executable: /bin/bash
+  delegate_to: localhost

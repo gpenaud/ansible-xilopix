@@ -1,0 +1,17 @@
+#jinja2: lstrip_blocks: True
+{
+  "signing": {
+    "default": {
+      "expiry": "{{ cfssl_signing_default_expiry }}"
+    },
+    "profiles": {
+      {% for profile, content in cfssl_signing_profiles.iteritems() %}
+      "{{ profile }}": {
+        "usages": {{ content.usages | to_json }},
+        "expiry": "{{ content.expiry }}"
+      }
+      {% endfor %}
+    }
+  }
+}
+

@@ -1,5 +1,8 @@
 ---
+
 # cloudflare ssl
+cfssl_certs_path: /etc/ssl/cfssl/certs
+cfssl_generation_local_certs_path: /tmp/cfssl_certs
 cfssl_binary_url: "https://pkg.cfssl.org/R1.2/cfssl_linux-amd64"
 cfssl_json_binary_url: "https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64"
 
@@ -28,16 +31,8 @@ cfssl_ca_csr:
 cfssl_clients_csr:
   cn: Kubernetes
   hosts:
-    - worker0.example.com
-    - worker1.example.com
-    - worker2.example.com
-    - etcd0.example.com
-    - etcd1.example.com
-    - etcd2.example.com
-    - master0.example.com
-    - master1.example.com
-    - master2.example.com
-    - 10.32.0.1
+    - cfssl-01.lxc.lan
+    - cfssl-02.lxc.lan
     - 127.0.0.1
   key:
     algo: rsa
@@ -47,4 +42,4 @@ cfssl_clients_csr:
       L: Paris
       O: Kubernetes
       OU: Cluster
-      ST: Ile-de -France
+      ST: Ile-de-France

@@ -1,0 +1,28 @@
+---
+
+- name: create certs directory
+  file:
+    state: directory
+    path: "{{ cfssl_certs_path }}"
+  become: yes
+
+- name: copy certificates files to remotes
+  copy:
+    src: "{{ cfssl_generation_local_certs_path }}/{{ file }}"
+    dest: "{{ cfssl_certs_path }}/{{ file }}"
+  with_items:
+    - ca.pem
+    - ca-key.pem
+    - "{{ cfssl_ca_csr.cn | lower }}-key.pem"
+    - "{{ cfssl_clients_csr.cn | lower }}.pem"
+  loop_control:
+    loop_var: file
+  become: yes
+
+#
+# KUBERNETES_HOSTS=(etcd0 etcd1 etcd2 worker0 worker1 worker2 manager0 manager1 manager2)
+# for host in ${KUBERNETES_HOSTS[*]}; do
+#   scp ca.pem  ${host}:~/
+#   scp kubernetes-key.pem  ${host}:~/
+#   scp kubernetes.pem ${host}:~/
+# done

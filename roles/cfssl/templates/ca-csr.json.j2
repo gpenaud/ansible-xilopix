@@ -1,0 +1,9 @@
+#jinja2: lstrip_blocks: True
+{
+  "CN": "{{ cfssl_ca_csr.cn }}",
+  "key": {
+    "algo": "{{ cfssl_ca_csr.key.algo }}",
+    "size": {{ cfssl_ca_csr.key.size }}
+  },
+  "names": {{ cfssl_ca_csr.names | to_nice_json }}
+}
