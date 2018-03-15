@@ -17,6 +17,8 @@ Vagrant.configure(CONFIGURATION_VERSION) do |config|
         lxc.container_name  = :machine
         lxc.customize 'network.link', 'lxc-bridge'
       end
+      # to get dns entry in dnsmasq
+      node.vm.provision "shell", inline: "dhclient eth0"
     end
   end
 end

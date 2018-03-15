@@ -1,22 +1,15 @@
 ---
 
-# - name: install - download cfssl binaries
-#   get_url:
-#     url: "https://{{ binary.url }}"
-#     dest: "{{ binary.file }}"
-#     mode: 0755
-#   with_items:
-#     - url: "{{ cfssl_binary_url }}"
-#       file: /usr/local/bin/cfssl
-#     - url: "{{ cfssl_json_binary_url }}"
-#       file: /usr/local/bin/cfssljson
-#   loop_control:
-#     loop_var: binary
-#   become: yes
-
 - name: install - download cfssl binaries
   get_url:
-    url: "https://{{ cfssl_binary_url }}"
-    dest: /usr/local/bin/cfssl
+    url: "{{ binary.url }}"
+    dest: "{{ binary.file }}"
     mode: 0755
+  with_items:
+    - url: "{{ cfssl_binary_url }}"
+      file: /usr/local/bin/cfssl
+    - url: "{{ cfssl_json_binary_url }}"
+      file: /usr/local/bin/cfssljson
+  loop_control:
+    loop_var: binary
   become: yes
