@@ -1,0 +1,9 @@
+---
+- name: test k8s-master deployment
+  hosts:
+    - master0
+    - master1
+    - master2
+
+  roles:
+    - k8s-master
