@@ -91,7 +91,7 @@
       command: "bash {{ lookup('env', 'HOME') }}/dotfiles/setup.sh"
       environment:
         DOTFILES_DIR: "{{ lookup('env', 'HOME') }}/dotfiles"
-        DOTFILES_ENV_FILE: laptop
+        DOTFILES_ENV_FILE: lxc
       become_user: "{{ user }}"
 
     - name: install goss to server (part 1)
