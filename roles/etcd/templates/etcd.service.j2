@@ -1,0 +1,27 @@
+[Unit]
+Description=etcd
+Documentation=https://github.com/coreos
+
+[Service]
+ExecStart={{ etcd_binary_dir }}/etcd --name etcd0 \
+  {% if etcd_protocol == 'https' %}
+  --cert-file={{ etcd_ssl_cert_file }} \
+  --key-file={{ etcd_ssl_key_file }} \
+  --peer-cert-file={{ etcd_ssl_peer_cert_file }} \
+  --peer-key-file={{ etcd_ssl_peer_key_file }} \
+  --trusted-ca-file={{ etcd_ssl_trusted_ca_file }} \
+  --peer-trusted-ca-file={{ etcd_ssl_peer_trusted_ca_file }} \
+  {% endif %}
+  --initial-advertise-peer-urls {{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:2380 \
+  --listen-peer-urls {{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:2380 \
+  --listen-client-urls {{ etcd_clients_listening | join(',') }} \
+  --advertise-client-urls {{ etcd_clients_advertising | join(',') }} \
+  --initial-cluster-token etcd-cluster-0 \
+  --initial-cluster {{ etcd_cluster | join(',') }} \
+  --initial-cluster-state new \
+  --data-dir={{ etcd_data_dir }}
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+---
+
+user:
+  gpenaud:
+    exists: true
+    groups:
+      - adm
+      - sudo
+    home: /home/gpenaud
+    shell: /bin/bash

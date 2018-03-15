@@ -1,0 +1,9 @@
+---
+- name: test etcd deployment
+  hosts:
+    - etcd0
+    - etcd1
+    - etcd2
+
+  roles:
+    - etcd

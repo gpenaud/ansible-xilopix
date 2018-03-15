@@ -1,0 +1,33 @@
+---
+
+- name: install - test etcd binaries presence
+  stat:
+    path: "{{ etcd_binary_dir }}/etcd"
+  register: etcd_binary
+
+- name: install - create data directory for etcd
+  file:
+    state: directory
+    path: "{{ etcd_data_dir }}"
+  become: yes
+
+- name: install - create source tmp directory for etcd
+  file:
+    state: directory
+    path: "{{ etcd_src_temp_dir }}"
+
+- name: install - install etcd binaries
+  block:
+  - name: install - download and extract etcd tarball
+    unarchive:
+      src: "{{ etcd_package_url }}"
+      dest: "{{ etcd_src_temp_dir }}"
+      remote_src: yes
+
+  - name: install - move etcd binaries then clean /tmp
+    shell: |
+      mv {{ etcd_src_temp_dir }}/{{ etcd_archive_name }}/etcd* /usr/local/bin
+      chmod +x /usr/local/bin/etcd*
+      rm -rf /tmp/etcd*
+    become: yes
+  when: not etcd_binary.stat.exists

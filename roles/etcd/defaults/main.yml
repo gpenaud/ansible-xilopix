@@ -1,0 +1,33 @@
+---
+etcd_package_version: 3.0.15
+etcd_archive_name: etcd-v{{ etcd_package_version }}-linux-amd64
+etcd_package_url: "https://github.com/coreos/etcd/releases/download/v{{ etcd_package_version }}/{{ etcd_archive_name }}.tar.gz"
+
+etcd_binary_dir: /usr/local/bin
+etcd_data_dir: /var/lib/etcd
+etcd_src_temp_dir: /tmp/etcd
+
+# ssl
+etcd_protocol: http
+etcd_ssl_cert_file: /etc/etcd/certificate.pem
+etcd_ssl_key_file: /etc/etcd/certificate.pem
+etcd_ssl_peer_cert_file: /etc/etcd/certificate.pem
+etcd_ssl_peer_key_file: /etc/etcd/certificate.pem
+etcd_ssl_trusted_ca_file: /etc/etcd/certificate.pem
+etcd_ssl_peer_trusted_ca_file: /etc/etcd/certificate.pem
+
+# listening clients
+etcd_clients_listening:
+  - "{{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:2379"
+  - "{{ etcd_protocol }}://127.0.0.1:2379"
+
+etcd_clients_advertising:
+  - "{{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:2379"
+
+# etcd cluster definition
+etcd_cluster:
+  - "etcd0={{ etcd_protocol }}://etcd0.lxc.lan:2380"
+  - "etcd1={{ etcd_protocol }}://etcd1.lxc.lan:2380"
+  - "etcd2={{ etcd_protocol }}://etcd2.lxc.lan:2380"
+
+# etcdctl --ca-file=/etc/etcd/ca.pem cluster-health
