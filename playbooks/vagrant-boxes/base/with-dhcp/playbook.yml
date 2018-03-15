@@ -31,6 +31,7 @@
       user:
         name: "{{ user }}"
         password: "{{ password }}"
+        shell: /bin/bash
         comment: "{{ user }} only user, accessible through ssh with personal key"
         group: "{{ user }}"
         groups: adm,sudo
@@ -84,12 +85,14 @@
       git:
         repo: "https://github.com/{{ user }}/dotfiles.git"
         dest: "{{ lookup('env', 'HOME') }}/dotfiles"
+      become_user: "{{ user }}"
 
     - name: execute setup.sh from dotfiles repository
       command: "bash {{ lookup('env', 'HOME') }}/dotfiles/setup.sh"
       environment:
         DOTFILES_DIR: "{{ lookup('env', 'HOME') }}/dotfiles"
-        DOTFILES_ENV: laptop
+        DOTFILES_ENV_FILE: laptop
+      become_user: "{{ user }}"
 
     - name: install goss to server (part 1)
       get_url:
