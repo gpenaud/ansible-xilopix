@@ -1,1 +1,8 @@
 ---
+
+- name: restart kube-apiserver
+  systemd:
+    name: kube-apiserver
+    daemon_reload: yes
+    state: restarted
+  become: yes

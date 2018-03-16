@@ -1,2 +1,34 @@
 ---
 
+- name: install - create mandatory directories
+  file:
+    state: directory
+    path: "{{ directory }}"
+  with_items:
+    - "{{ kube_apiserver_data_dir }}"
+    - "{{ kube_apiserver_certs_path }}"
+  loop_control:
+    loop_var: directory
+  become: yes
+
+- name: install - download kube-apiserver binary
+  get_url:
+    url: "{{ kube_api_server_package_url }}"
+    dest: "{{ kube_apiserver_binary_path }}/kube-apiserver"
+    mode: 0755
+  become: yes
+
+- name: configure - define systemd service for etcd
+  template:
+    src: templates/kube-apiserver.service.j2
+    dest: /etc/systemd/system/kube-apiserver.service
+  notify:
+    - restart kube-apiserver
+  become: yes
+
+- name: enable kube-apiserver service
+  service:
+    name: kube-apiserver
+    state: started
+    enabled: yes
+  become: yes

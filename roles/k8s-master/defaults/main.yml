@@ -7,3 +7,47 @@ kube_api_server_package_url: "{{ kube_release_url }}/kube-apiserver"
 kube_controller_manager_package_url: "{{ kube_release_url }}/kube-controller-manager"
 kube_scheduler_package_url: "{{ kube_release_url }}/kube-scheduler"
 kubectl_package_url: "{{ kube_release_url }}/kubectl"
+
+#-------------------------------------
+# Set API server defaults variables
+#-------------------------------------
+kube_apiserver_bind_address: 0.0.0.0
+kube_apiserver_insecure_bind_address: "{{ kube_apiserver_bind_address }}"
+kube_apiserver_data_dir: /var/lib/kubernetes
+
+kube_apiserver_binary_path: /usr/local/bin
+kube_apiserver_admission_control:
+  - NamespaceLifecycle
+  - LimitRanger
+  - SecurityContextDeny
+  - ServiceAccount
+  - ResourceQuota
+
+kube_apiserver_allow_privilege: yes
+kube_apiserver_count: 3
+kube_apiserver_authorization_mode: ABAC
+kube_apiserver_authorization_policy_file: /var/lib/kubernetes/authorization-policy.jsonl
+kube_apiserver_enable_swagger_ui: yes
+
+kube_apiserver_certs_path: "{{ kube_apiserver_data_dir }}"
+kube_apiserver_etcd_cafile: "{{ kube_apiserver_certs_path }}/ca.pem"
+kube_apiserver_kubelet_certificate_authority: "{{ kube_apiserver_certs_path }}/ca.pem"
+kube_apiserver_service_account_key_file: "{{ kube_apiserver_certs_path }}/kubernetes-key.pem"
+kube_apiserver_tls_cert_file: "{{ kube_apiserver_certs_path }}/kubernetes.pem"
+kube_apiserver_tls_private_key_file: "{{ kube_apiserver_certs_path }}/kubernetes-key.pem"
+
+kube_apiserver_service_cluster_ip_range: 10.32.0.0/16
+kube_apiserver_service_node_port_range: "30000-32767"
+kube_apiserver_token_auth_file: /var/lib/kubernetes/token.csv
+kube_apiserver_verbosity: 2
+
+kube_apiserver_etcd_protocol: https
+kube_apiserver_etcd_client_port: 2379
+kube_apiserver_etcd_members:
+  - etcd0.lxc.lan
+  - etcd1.lxc.lan
+  - etcd2.lxc.lan
+kube_apiserver_etcd_servers: |
+  {% for member in kube_apiserver_etcd_members -%}
+  {{ member }}={{ kube_apiserver_etcd_protocol }}://{{ member }}:{{ kube_apiserver_etcd_client_port }},
+  {%- endfor %}
