@@ -1,16 +1,25 @@
 ---
 
+# - name: main - add components default variables
+#   include_vars: defaults/{{ file }}.yml
+#   with_items:
+#     - kube-apiserver
+#     - kube-controller-manager
+#     - kube-scheduler
+#   loop_control:
+#     loop_var: file
+
 - name: main - install kube-api-server
   include: kube-api-server.yml
   tags:
     - api-server
 
-- name: main - install kube-controller-manager
-  include: kube-controller-manager.yml
-  tags:
-    - controller-manager
-
-- name: main - install kube-scheduler
-  include: kube-scheduler.yml
-  tags:
-    - scheduler
+# - name: main - install kube-controller-manager
+#   include: kube-controller-manager.yml
+#   tags:
+#     - controller-manager
+#
+# - name: main - install kube-scheduler
+#   include: kube-scheduler.yml
+#   tags:
+#     - scheduler
