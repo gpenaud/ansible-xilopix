@@ -22,7 +22,7 @@ ExecStart={{ kube_apiserver_binary_path }}/kube-apiserver \
   --tls-cert-file={{ kube_apiserver_tls_cert_file }} \
   --tls-private-key-file={{ kube_apiserver_tls_private_key_file }} \
   {% endif %}
-  --etcd-servers={{ kube_apiserver_etcd_servers }} \
+  --etcd-servers={{ kube_apiserver_etcd_servers | replace(',\n', '') }} \
   --token-auth-file={{ kube_apiserver_token_auth_file }} \
   --v={{ kube_apiserver_verbosity }} \
 Restart=on-failure

@@ -1,0 +1,14 @@
+[Unit]
+Description=Kubernetes Scheduler
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+ExecStart={{ kube_scheduler_binary_path }}/kube-scheduler \
+  --leader-elect={{ kube_scheduler_leader_elect | lower }} \
+  --master={{ kube_scheduler_master }} \
+  --v={{ kube_scheduler_verbosity }}
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

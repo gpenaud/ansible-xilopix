@@ -1,1 +1,33 @@
 ---
+
+- name: install - create mandatory directories
+  file:
+    state: directory
+    path: "{{ directory }}"
+  with_items:
+    - "{{ kube_scheduler_binary_path }}"
+  loop_control:
+    loop_var: directory
+  become: yes
+
+- name: install - download kube-scheduler binary
+  get_url:
+    url: "{{ kube_scheduler_package_url }}"
+    dest: "{{ kube_scheduler_binary_path }}/kube-scheduler"
+    mode: 0755
+  become: yes
+
+- name: configure - define systemd service for etcd
+  template:
+    src: templates/kube-scheduler.service.j2
+    dest: /etc/systemd/system/kube-scheduler.service
+  notify:
+    - restart kube-scheduler
+  become: yes
+
+- name: enable kube-scheduler service
+  service:
+    name: kube-scheduler
+    state: started
+    enabled: yes
+  become: yes

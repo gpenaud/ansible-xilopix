@@ -1,0 +1,3 @@
+{% for token in kube_tokens %}
+{{ token.token }},{{ token.user }},{{ token.group }}
+{% endfor %}
