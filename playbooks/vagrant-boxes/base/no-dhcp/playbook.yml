@@ -18,6 +18,8 @@
         - git
         - sudo
         - curl
+        - vim
+        - netcat-openbsd
 
     - name: "create {{ user }} group in box"
       group:
