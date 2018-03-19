@@ -9,7 +9,16 @@
     - role: cfssl
       vars:
         cfssl_certs_path: /var/lib/kubernetes/certs
-        
+
+    - role: etcd
+      vars:
+        etcd_protocol: https
+        etcd_ssl_certs_path: /var/lib/kubernetes/certs
+
     - role: k8s-master
       vars:
         kube_apiserver_certs_path: /var/lib/kubernetes/certs
+        kube_apiserver_etcd_members:
+          - master0.lxc.lan
+          - master1.lxc.lan
+          - master2.lxc.lan

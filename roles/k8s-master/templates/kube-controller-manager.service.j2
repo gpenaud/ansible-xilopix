@@ -1,0 +1,21 @@
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+ExecStart={{ kube_controller_manager_binary_path }}/kube-controller-manager \
+  --allocate-node-cidrs={{ kube_controller_manager_allocate_node_cidrs | lower }} \
+  --cluster-cidr={{ kube_controller_manager_cluster_cidr }} \
+  --cluster-name={{ kube_controller_manager_cluster_name }} \
+  --leader-elect={{ kube_controller_manager_leader_elect | lower }} \
+  --master={{ kube_controller_manager_master }} \
+  --root-ca-file={{ kube_controller_manager_root_ca_file }} \
+  --service-account-private-key-file={{ kube_controller_manager_service_account_private_key_file }} \
+  --service-cluster-ip-range={{ kube_controller_manager_service_cluster_ip_range }} \
+  --v={{ kube_controller_manager_verbosity }}
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
