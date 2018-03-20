@@ -1,10 +1,23 @@
 ---
-- name: main - install cloudflare
-  include: install.yml
-  tags:
-    - install
 
-- name: main - upload cloudflare certificates
-  include: upload.yml
-  tags:
-    - upload
+- name: main - define csr hosts to match
+  set_fact:
+    csr_defined: "{{ cfssl_clients_csr.hosts }}"
+    csr_ips: "{{ groups['all'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
+
+- name: main - check existence of cert directory
+  stat:
+    path: "{{ cfssl_certs_path }}"
+  register: cert_directory
+
+- block:
+  - name: main - install cloudflare
+    include: install.yml
+    tags:
+      - install
+
+  - name: main - upload cloudflare certificates
+    include: upload.yml
+    tags:
+      - upload
+  when: not cert_directory.stat.exists or cfssl_force
