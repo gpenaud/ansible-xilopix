@@ -18,7 +18,7 @@
     mode: 0755
   become: yes
 
-- name: configure - define systemd service for etcd
+- name: configure - define systemd service for kube-apiserver
   template:
     src: templates/kube-apiserver.service.j2
     dest: /etc/systemd/system/kube-apiserver.service
