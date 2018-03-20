@@ -13,7 +13,7 @@
     - role: etcd
       vars:
         etcd_protocol: https
-        etcd_ssl_certs_path: /var/lib/kubernetes/certs
+        etcd_tls_certs_path: /var/lib/kubernetes/certs
 
     - role: k8s-master
       vars:
