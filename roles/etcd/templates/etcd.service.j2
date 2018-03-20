@@ -4,6 +4,9 @@ Documentation=https://github.com/coreos
 
 [Service]
 ExecStart={{ etcd_binary_dir }}/etcd --name {{ ansible_hostname }} \
+  {% if etcd_debug %}
+  --debug \
+  {% endif %}
   {% if etcd_protocol == 'https' %}
   {# TLS certificate file #}
   --cert-file={{ etcd_tls_cert_file }} \
@@ -19,9 +22,9 @@ ExecStart={{ etcd_binary_dir }}/etcd --name {{ ansible_hostname }} \
   --peer-trusted-ca-file={{ etcd_tls_peer_trusted_ca_file }} \
   {% endif %}
   {# List of member's peer urls to advertise cluster to #}
-  --initial-advertise-peer-urls {{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:{{ etcd_client_port }} \
+  --initial-advertise-peer-urls {{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:{{ etcd_server_port }} \
   {# Peers urls's list #}
-  --listen-peer-urls {{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:{{ etcd_client_port }} \
+  --listen-peer-urls {{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:{{ etcd_server_port }} \
   {# Client urls's list #}
   --listen-client-urls {{ etcd_clients_listening | join(',') }} \
   {# Client url used by client to talk with the cluster #}
