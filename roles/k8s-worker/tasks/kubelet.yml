@@ -1,0 +1,33 @@
+---
+
+- name: install - create mandatory directories
+  file:
+    state: directory
+    path: "{{ directory }}"
+  with_items:
+    - "{{ kubelet_binary_path }}"
+  loop_control:
+    loop_var: directory
+  become: yes
+
+- name: install - download kubelet binary
+  get_url:
+    url: "{{ kubelet_package_url }}"
+    dest: "{{ kubelet_binary_path }}/kubelet"
+    mode: 0755
+  become: yes
+
+- name: configure - define systemd service for etcd
+  template:
+    src: templates/kubelet.service.j2
+    dest: /etc/systemd/system/kubelet.service
+  notify:
+    - restart kubelet
+  become: yes
+
+- name: enable kubelet service
+  service:
+    name: kubelet
+    state: started
+    enabled: yes
+  become: yes

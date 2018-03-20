@@ -12,8 +12,4 @@
 
     - role: k8s-worker
       vars:
-        kube_apiserver_certs_path: /var/lib/kubernetes/certs
-        kube_apiserver_etcd_members:
-          - worker0.lxc.lan
-          - worker1.lxc.lan
-          - worker2.lxc.lan
+        kubelet_certs_path: /var/lib/kubernetes/certs

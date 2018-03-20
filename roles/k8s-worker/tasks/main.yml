@@ -9,3 +9,8 @@
   include: cni.yml
   tags:
     - cni
+
+- name: main - install kubelet server
+  include: kubelet.yml
+  tags:
+    - kubelet

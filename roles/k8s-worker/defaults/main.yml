@@ -21,11 +21,50 @@ cni_sha_version: 07a8a28637e97b22eb8dfe710eeae1344f69d16e
 cni_package_url: https://storage.googleapis.com/kubernetes-release/network-plugins/cni-{{ cni_sha_version }}.tar.gz
 cni_plugin_path: /opt/cni
 
+#-----------------------------------
+# Common kubernetes worker variables
+#-----------------------------------
+kube_package_version: 1.4.7
+kube_release_url: "https://storage.googleapis.com/kubernetes-release/release/v{{ kube_package_version }}/bin/linux/amd64"
+kubelet_package_url: "{{ kube_release_url }}/kubelet"
+kube_proxy_package_url: "{{ kube_release_url }}/kube-proxy"
+
+#-----------------------------------------
+# Kubelet variables for kubernetes workers
+#-----------------------------------------
+kubelet_binary_path: /usr/bin
+kubelet_certs_path: /var/lib/kubernetes
+kubelet_allow_privileged: yes
+kubelet_protocol: https
+kubelet_api_port: 6443
+kubelet_api_servers:
+  - master0.lxc.lan
+  - master0.lxc.lan
+  - master0.lxc.lan
+kubelet_servers: |
+  {% for server in kubelet_api_servers -%}
+  {{ kubelet_protocol }}://{{ server }}:{{ kubelet_api_port }},
+  {%- endfor %}
+
+kubelet_cloud_provider:
+kubelet_cluster_dns: 10.32.0.10
+kubelet_cluster_domain: cluster.local
+kubelet_configure_cbr0: yes
+kubelet_container_runtime: docker
+kubelet_docker: unix:///var/run/docker.sock
+kubelet_network_plugin: kubenet
+kubelet_kubeconfig: /var/lib/kubelet/kubeconfig
+kubelet_reconcile_cidr: yes
+kubelet_serialize_image_pulls: no
+kubelet_tls_cert_file: "{{ kubelet_certs_path }}/kubernetes.pem"
+kubelet_tls_private_key_file: "{{ kubelet_certs_path }}/kubernetes-key.pem"
+kubelet_verbosity: 2
+
 #---------------------------------------------------
 # Kubelet variables for worker cluster configuration
 #---------------------------------------------------
 kubelet_conf_main_cluster_name: kubernetes
-kubelet_conf_main_cluster_cert_ca: /var/lib/kubernetes/ca.pem
+kubelet_conf_main_cluster_cert_ca: "{{ kubelet_certs_path }}/ca.pem"
 kubelet_conf_main_cluster_server: https://master0.lxc.lan:6443
 kubelet_conf_main_cluster_context_user: kubelet
 kubelet_conf_main_cluster_context_name: kubelet
@@ -52,21 +91,3 @@ kubelet_configuration:
       user:
         token: "{{ kubelet_conf_main_cluster_user_token }}"
 
-
-
-/usr/bin/kubelet \
-  --allow-privileged=true \
-  --api-servers=https://master0.example.com:6443,https://master1.example.com:6443,https://master2.example.com:6443 \
-  --cloud-provider= \
-  --cluster-dns=10.32.0.10 \
-  --cluster-domain=cluster.local \
-  --configure-cbr0=true \
-  --container-runtime=docker \
-  --docker=unix:///var/run/docker.sock \
-  --network-plugin=kubenet \
-  --kubeconfig=/var/lib/kubelet/kubeconfig \
-  --reconcile-cidr=true \
-  --serialize-image-pulls=false \
-  --tls-cert-file=/var/lib/kubernetes/kubernetes.pem \
-  --tls-private-key-file=/var/lib/kubernetes/kubernetes-key.pem \
-  --v=2
