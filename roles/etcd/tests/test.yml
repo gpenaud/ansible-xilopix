@@ -6,6 +6,11 @@
     - etcd2
 
   roles:
+    - role: cfssl
+      vars:
+        cfssl_certs_path: /var/lib/kubernetes/certs
+
     - role: etcd
       vars:
-        
+        etcd_protocol: https
+        etcd_tls_certs_path: /var/lib/kubernetes/certs
