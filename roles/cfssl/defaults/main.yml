@@ -7,6 +7,7 @@ cfssl_binary_url: "https://pkg.cfssl.org/R1.2/cfssl_linux-amd64"
 cfssl_json_binary_url: "https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64"
 
 cfssl_force: no
+cfssl_upload_only: no
 cfssl_signing_default_expiry: 8760h
 cfssl_signing_profiles:
   kubernetes:
