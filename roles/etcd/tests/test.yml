@@ -9,19 +9,6 @@
     - role: cfssl
       vars:
         cfssl_certs_path: /var/lib/kubernetes/certs
-        cfssl_clients_csr:
-          cn: Kubernetes
-          hosts:
-            - 127.0.0.1
-          key:
-            algo: rsa
-            size: 2048
-          names:
-            - C: FR
-              L: Paris
-              O: Kubernetes
-              OU: Cluster
-              ST: Ile-de-France
 
     - role: etcd
       vars:
