@@ -1,7 +1,7 @@
 #jinja2: lstrip_blocks: True
 {
   "CN": "{{ cfssl_clients_csr.cn }}",
-  "hosts": {{ (csr_defined + csr_ips) | to_nice_json }},
+  "hosts": {{ (csr_defined + csr_ips + (csr_fqdn | map('regex_replace', ' ', '') | list) ) | to_nice_json }},
   "key": {
     "algo": "{{ cfssl_clients_csr.key.algo }}",
     "size": {{ cfssl_clients_csr.key.size }}

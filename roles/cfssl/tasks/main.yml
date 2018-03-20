@@ -1,8 +1,21 @@
 ---
+- name: facts - create custom facts directory
+  file:
+    state: directory
+    path: /etc/ansible/facts.d
+  become: yes
+
+- name: facts - insert fqdn fact file
+  copy:
+    src: files/fqdn.fact
+    dest: /etc/ansible/facts.d/fqdn.fact
+    mode: 0755
+  become: yes
 
 - name: main - define csr hosts to match
   set_fact:
     csr_defined: "{{ cfssl_clients_csr.hosts }}"
+    csr_fqdn: "{{ groups['all'] | map('extract', hostvars, ['ansible_local', 'fqdn', 'fqdn']) | list }}"
     csr_ips: "{{ groups['all'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
 
 - name: main - check existence of cert directory
