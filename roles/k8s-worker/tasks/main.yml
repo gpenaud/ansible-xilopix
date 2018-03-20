@@ -1,0 +1,11 @@
+---
+
+- name: main - install docker
+  include: docker.yml
+  tags:
+    - docker
+
+- name: main - install cni plugin
+  include: cni.yml
+  tags:
+    - cni

@@ -1,0 +1,20 @@
+---
+
+- name: install - test cni plugin presence
+  stat:
+    path: "{{ cni_plugin_path }}/bin"
+  register: cni_plugin
+
+- name: install - create data directory for cni plugin
+  file:
+    state: directory
+    path: "{{ cni_plugin_path }}"
+  become: yes
+
+- name: install - install cni plugin
+  unarchive:
+    src: "{{ cni_package_url }}"
+    dest: "{{ cni_plugin_path }}"
+    remote_src: yes
+  become: yes
+  when: not cni_plugin.stat.exists

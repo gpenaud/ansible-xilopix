@@ -1,0 +1,16 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=http://docs.docker.io
+
+[Service]
+ExecStart={{ docker_binary_path }}/docker daemon \
+  --iptables={{ docker_iptables_enabled | lower }} \
+  --ip-masq={{ docker_ipmasq_enabled | lower }} \
+  --host={{ docker_host }} \
+  --log-level={{ docker_log_level }} \
+  --storage-driver={{ docker_storage_driver }}
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

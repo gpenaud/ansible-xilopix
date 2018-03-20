@@ -1,0 +1,37 @@
+---
+
+- name: install - test docker binaries presence
+  stat:
+    path: "{{ docker_binary_path }}/docker"
+  register: docker_binary
+
+- name: install - install docker binaries
+  block:
+  - name: install - download and extract docker tarball
+    unarchive:
+      src: "{{ docker_release_url }}"
+      dest: "{{ docker_src_temp_path }}"
+      remote_src: yes
+
+  - name: install - move docker binaries then clean /tmp
+    shell: |
+      mv {{ docker_src_temp_path }}/docker/* /usr/local/bin
+      chmod +x /usr/local/bin/docker*
+      rm -rf /tmp/docker*
+    become: yes
+  when: not docker_binary.stat.exists
+
+- name: configure - define systemd service for docker
+  template:
+    src: templates/docker.service.j2
+    dest: /etc/systemd/system/docker.service
+  notify:
+    - restart docker
+  become: yes
+
+- name: configure - enable docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  become: yes
