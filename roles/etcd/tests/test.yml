@@ -6,4 +6,6 @@
     - etcd2
 
   roles:
-    - etcd
+    - role: etcd
+      vars:
+        

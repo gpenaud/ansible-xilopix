@@ -7,17 +7,17 @@ etcd_binary_dir: /usr/local/bin
 etcd_data_dir: /var/lib/etcd
 etcd_src_temp_dir: /tmp/etcd
 
-etcd_protocol: http
+etcd_protocol: https
 etcd_client_port: 2379
 etcd_server_port: 2380
 
 # ssl
-etcd_ssl_cert_file: /etc/etcd/certificate.pem
-etcd_ssl_key_file: /etc/etcd/certificate.pem
-etcd_ssl_peer_cert_file: /etc/etcd/certificate.pem
-etcd_ssl_peer_key_file: /etc/etcd/certificate.pem
-etcd_ssl_trusted_ca_file: /etc/etcd/certificate.pem
-etcd_ssl_peer_trusted_ca_file: /etc/etcd/certificate.pem
+etcd_tls_cert_file: /etc/etcd/certificate.pem
+etcd_tls_key_file: /etc/etcd/certificate.pem
+etcd_tls_peer_cert_file: /etc/etcd/certificate.pem
+etcd_tls_peer_key_file: /etc/etcd/certificate.pem
+etcd_tls_trusted_ca_file: /etc/etcd/certificate.pem
+etcd_tls_peer_trusted_ca_file: /etc/etcd/certificate.pem
 
 # listening clients
 etcd_clients_listening:

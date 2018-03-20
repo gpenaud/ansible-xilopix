@@ -5,20 +5,31 @@ Documentation=https://github.com/coreos
 [Service]
 ExecStart={{ etcd_binary_dir }}/etcd --name {{ ansible_hostname }} \
   {% if etcd_protocol == 'https' %}
-  --cert-file={{ etcd_ssl_cert_file }} \
-  --key-file={{ etcd_ssl_key_file }} \
-  --peer-cert-file={{ etcd_ssl_peer_cert_file }} \
-  --peer-key-file={{ etcd_ssl_peer_key_file }} \
-  --trusted-ca-file={{ etcd_ssl_trusted_ca_file }} \
-  --peer-trusted-ca-file={{ etcd_ssl_peer_trusted_ca_file }} \
+  {# TLS certificate file #}
+  --cert-file={{ etcd_tls_cert_file }} \
+  {# TLS certificate key #}
+  --key-file={{ etcd_tls_key_file }} \
+  {# TLS trusted certificate authority #}
+  --trusted-ca-file={{ etcd_tls_trusted_ca_file }} \
+  {# TLS certificate file used between peers (servers) #}
+  --peer-cert-file={{ etcd_tls_peer_cert_file }} \
+  {# TLS certificate key used between peers (servers) #}
+  --peer-key-file={{ etcd_tls_peer_key_file }} \
+  {# TLS trusted certificate authority used between peers (servers) #}
+  --peer-trusted-ca-file={{ etcd_tls_peer_trusted_ca_file }} \
   {% endif %}
-  --initial-cluster {{ etcd_cluster }} \
-  --initial-advertise-peer-urls {{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:2380 \
-  --listen-peer-urls {{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:2380 \
+  {# List of member's peer urls to advertise cluster to #}
+  --initial-advertise-peer-urls {{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:{{ etcd_client_port }} \
+  {# Peers urls's list #}
+  --listen-peer-urls {{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:{{ etcd_client_port }} \
+  {# Client urls's list #}
   --listen-client-urls {{ etcd_clients_listening | join(',') }} \
+  {# Client url used by client to talk with the cluster #}
   --advertise-client-urls {{ etcd_clients_advertising | join(',') }} \
-  --initial-cluster-token etcd-cluster-0 \
+  {# Authentication token to talk with cluster #}
+  --initial-cluster-token etcd-cluster-1 \
   --initial-cluster-state new \
+  --initial-cluster {{ etcd_cluster | regex_replace(',\n', '') }} \
   --data-dir={{ etcd_data_dir }}
 Restart=on-failure
 RestartSec=5
