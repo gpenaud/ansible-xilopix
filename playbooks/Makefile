@@ -14,21 +14,24 @@ endif
 .ONESHELL:
 
 build:
-	@ cd $(PLAYBOOK_TEST_PATH)
+	@ export VAGRANT_CWD=$(PLAYBOOK_TEST_PATH)
 	@ vagrant destroy -f
 	@ vagrant up
 
 deploy:
-	@ cd $(PLAYBOOK_TEST_PATH)
-	@ ansible-playbook -i $(INVENTORY) test.yml
+	@ export VAGRANT_CWD=$(PLAYBOOK_TEST_PATH)
+	@ ansible-playbook -i $(INVENTORY) $(PLAYBOOK_TEST_PATH)/test.yml
 
 validate:
-	@ cd $(PLAYBOOK_TEST_PATH)
-	@ ansible-playbook -i $(INVENTORY) test.yml --tags validate
+	@ export VAGRANT_CWD=$(PLAYBOOK_TEST_PATH)
+	@ ansible-playbook -i $(INVENTORY) $(PLAYBOOK_TEST_PATH)/test.yml --tags validate
 	@ $(SSH) $(CONTAINER_IP) $(GOSS_CMD)
 
 clean:
-	@ cd $(PLAYBOOK_TEST_PATH)
+	@ export VAGRANT_CWD=$(PLAYBOOK_TEST_PATH)
 	@ vagrant destroy -f
+
+echo:
+	@ echo "VAGRANT_CWD=$(PLAYBOOK_TEST_PATH) ansible-playbook -i $(INVENTORY) $(PLAYBOOK_TEST_PATH)/test.yml --tags"
 
 test: build validate clean
