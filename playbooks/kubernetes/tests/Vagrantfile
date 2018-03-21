@@ -1,26 +1,49 @@
 CONFIGURATION_VERSION = 2
 IMAGE = 'base-with-dhcp'
-NODES = [
+
+LXC_NODES = [
   'master0',
   'master1',
-  'master2',
+  # 'master2'
+]
+
+KVM_NODES = [
   'worker0',
   'worker1',
-  'worker2'
+  # 'worker2'
 ]
 
 Vagrant.configure(CONFIGURATION_VERSION) do |config|
   config.vm.box = IMAGE
-
-  NODES.each do |node_name|
-    config.vm.define node_name do |node|
-      node.vm.hostname = node_name
-      node.vm.provider :lxc do |lxc|
+  LXC_NODES.each do |node_name|
+    config.vm.define node_name do |lxc_node|
+      lxc_node.vm.hostname = node_name
+      lxc_node.vm.provider :lxc do |lxc|
         lxc.container_name  = :machine
         lxc.customize 'network.link', 'lxc-bridge'
       end
       # to get dns entry in dnsmasq
-      node.vm.provision "shell", inline: "dhclient eth0"
+      lxc_node.vm.provision "shell", inline: "dhclient eth0"
+    end
+  end
+end
+
+Vagrant.configure(CONFIGURATION_VERSION) do |config|
+  config.vm.box = IMAGE
+  KVM_NODES.each do |node_name|
+    config.vm.define node_name do |kvm_node|
+      kvm_node.vm.hostname = node_name
+      kvm_node.vm.synced_folder './', '/vagrant', type: 'rsync'
+      kvm_node.vm.provider :libvirt do |kvm|
+        kvm.driver   = 'qemu'
+        kvm.cpus   = 1
+        kvm.memory = 512
+        kvm.storage_pool_name = "default"
+      end
+
+      kvm_node.vm.network :public_network,
+        :dev  => "lxc-bridge",
+        :type => "bridge"
     end
   end
 end
