@@ -11,6 +11,7 @@ etcd_debug: yes
 etcd_protocol: https
 etcd_client_port: 2379
 etcd_server_port: 2380
+etcd_service_force_restart: no
 
 # tls
 etcd_tls_certs_path: /etc/etcd
@@ -30,7 +31,7 @@ etcd_clients_advertising:
   - "{{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:{{ etcd_client_port }}"
 
 # etcd cluster definition
-cluster_members: "{{ groups['all'] | sort }}"
+cluster_members: "{{ play_hosts | sort }}"
 etcd_cluster: |
   {% for member in cluster_members -%}
   {{ member }}={{ etcd_protocol }}://{{ hostvars[member].ansible_default_ipv4.address }}:{{ etcd_server_port }},

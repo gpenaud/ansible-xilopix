@@ -14,3 +14,8 @@
     state: started
     enabled: yes
   become: yes
+
+- name: restart etcd on condition
+  command: /bin/true
+  notify: restart etcd
+  when: etcd_service_force_restart
