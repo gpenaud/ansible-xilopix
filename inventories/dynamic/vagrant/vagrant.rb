@@ -98,6 +98,8 @@ if __FILE__ == $0
 
   if options.directory
     $dir = options.directory
+  elsif ENV['VAGRANT_CWD']
+    $dir = ENV['VAGRANT_CWD']
   else
     $dir = Dir.pwd
   end
