@@ -1,4 +1,5 @@
 ---
+
 - name: facts - create custom facts directory
   file:
     state: directory
@@ -33,4 +34,4 @@
     include: upload.yml
     tags:
       - upload
-  when: not cert_directory.stat.exists or cfssl_force
+  when: cfssl_force or not cert_directory.stat.exists

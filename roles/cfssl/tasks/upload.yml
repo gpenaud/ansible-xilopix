@@ -18,11 +18,3 @@
   loop_control:
     loop_var: file
   become: yes
-
-#
-# KUBERNETES_HOSTS=(etcd0 etcd1 etcd2 worker0 worker1 worker2 manager0 manager1 manager2)
-# for host in ${KUBERNETES_HOSTS[*]}; do
-#   scp ca.pem  ${host}:~/
-#   scp kubernetes-key.pem  ${host}:~/
-#   scp kubernetes.pem ${host}:~/
-# done
