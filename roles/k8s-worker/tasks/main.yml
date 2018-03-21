@@ -14,3 +14,15 @@
   include: kubelet.yml
   tags:
     - kubelet
+
+- name: main - install kube-proxy server
+  include: kube-proxy.yml
+  tags:
+    - kube-proxy
+
+- name: install - download kubectl binary
+  get_url:
+    url: "{{ kubectl_package_url }}"
+    dest: "{{ kubelet_binary_path }}/kubectl"
+    mode: 0755
+  become: yes

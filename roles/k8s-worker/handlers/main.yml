@@ -13,3 +13,10 @@
     daemon_reload: yes
     state: restarted
   become: yes
+
+- name: restart kube-proxy
+  systemd:
+    name: kube-proxy
+    daemon_reload: yes
+    state: restarted
+  become: yes

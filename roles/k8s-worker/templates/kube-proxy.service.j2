@@ -1,0 +1,16 @@
+[Unit]
+Description=Kubernetes Kube Proxy
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+ExecStart={{ kube_proxy_binary_path }}/kube-proxy \
+  --master={{ kube_proxy_master_host }} \
+  --kubeconfig={{ kube_proxy_kubelet_config_path }} \
+  --proxy-mode={{ kube_proxy_proxy_mode }} \
+  --v={{ kube_proxy_verbosity }}
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

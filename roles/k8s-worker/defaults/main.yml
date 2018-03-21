@@ -26,6 +26,7 @@ cni_plugin_path: /opt/cni
 #-----------------------------------
 kube_package_version: 1.4.7
 kube_release_url: "https://storage.googleapis.com/kubernetes-release/release/v{{ kube_package_version }}/bin/linux/amd64"
+kubectl_package_url: "{{ kube_release_url }}/kubectl"
 kubelet_package_url: "{{ kube_release_url }}/kubelet"
 kube_proxy_package_url: "{{ kube_release_url }}/kube-proxy"
 
@@ -34,13 +35,14 @@ kube_proxy_package_url: "{{ kube_release_url }}/kube-proxy"
 #-----------------------------------------
 kubelet_binary_path: /usr/bin
 kubelet_certs_path: /var/lib/kubernetes
+kubelet_service_force_restart: no
 kubelet_allow_privileged: yes
 kubelet_protocol: https
 kubelet_api_port: 6443
 kubelet_api_servers:
   - master0.lxc.lan
-  - master0.lxc.lan
-  - master0.lxc.lan
+  - master1.lxc.lan
+  - master2.lxc.lan
 kubelet_servers: |
   {% for server in kubelet_api_servers -%}
   {{ kubelet_protocol }}://{{ server }}:{{ kubelet_api_port }},
@@ -53,7 +55,7 @@ kubelet_configure_cbr0: yes
 kubelet_container_runtime: docker
 kubelet_docker: unix:///var/run/docker.sock
 kubelet_network_plugin: kubenet
-kubelet_kubeconfig: /var/lib/kubelet/kubeconfig
+kubelet_kubeconfig_path: /var/lib/kubelet
 kubelet_reconcile_cidr: yes
 kubelet_serialize_image_pulls: no
 kubelet_tls_cert_file: "{{ kubelet_certs_path }}/kubernetes.pem"
@@ -91,3 +93,12 @@ kubelet_configuration:
       user:
         token: "{{ kubelet_conf_main_cluster_user_token }}"
 
+#-----------------------------------------------
+# Kube-proxy variables for workers configuration
+#-----------------------------------------------
+kube_proxy_binary_path: /usr/bin
+kube_proxy_master_host: https://master0.lxc.lan:6443
+kube_proxy_service_force_restart: no
+kube_proxy_kubelet_config_path: /var/lib/kubelet/kubeconfig
+kube_proxy_proxy_mode: iptables
+kube_proxy_verbosity: 2

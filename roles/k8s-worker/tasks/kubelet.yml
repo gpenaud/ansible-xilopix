@@ -6,6 +6,7 @@
     path: "{{ directory }}"
   with_items:
     - "{{ kubelet_binary_path }}"
+    - "{{ kubelet_kubeconfig_path }}"
   loop_control:
     loop_var: directory
   become: yes
@@ -17,7 +18,13 @@
     mode: 0755
   become: yes
 
-- name: configure - define systemd service for etcd
+- name: configure - copy kubelet configuration
+  copy:
+    content: "{{ kubelet_configuration | to_nice_yaml }}"
+    dest: "{{ kubelet_kubeconfig_path }}/kubeconfig"
+  become: yes
+
+- name: configure - define systemd service for kubelet
   template:
     src: templates/kubelet.service.j2
     dest: /etc/systemd/system/kubelet.service
