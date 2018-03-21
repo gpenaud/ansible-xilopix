@@ -5,7 +5,7 @@ https://blog.ouvrard.it/2016/12/13/kubernetes-de-zero/
 
 # Validation commands
 
-## etcd cluster
+## etcd cluster (on master)
 etcdctl \
   --endpoint=https://127.0.0.1:2379 \
   --ca-file=/var/lib/kubernetes/certs/ca.pem \
@@ -14,4 +14,5 @@ etcdctl \
   --no-sync \
   cluster-health
 
-## kube-apiserver server
+## master nodes validation (on master)
+kubectl get componentstatuses

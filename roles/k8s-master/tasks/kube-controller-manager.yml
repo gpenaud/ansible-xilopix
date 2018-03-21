@@ -32,3 +32,8 @@
     state: started
     enabled: yes
   become: yes
+
+- name: restart kube-controller-manager on condition
+  command: /bin/true
+  notify: restart kube-controller-manager
+  when: kube_controller_manager_service_force_restart

@@ -13,6 +13,7 @@ kubectl_package_url: "{{ kube_release_url }}/kubectl"
 
 kube_master_binary_path: /usr/local/bin
 kube_master_data_dir: /var/lib/kubernetes
+kube_apiserver_service_force_restart: no
 
 kube_tokens:
   - user: admin
@@ -74,6 +75,7 @@ kube_apiserver_etcd_servers: |
 #-----------------------------------------
 # Set controller-manager default variables
 #-----------------------------------------
+kube_controller_manager_service_force_restart: no
 kube_controller_manager_binary_path: "{{ kube_master_binary_path }}"
 kube_controller_manager_data_dir: "{{ kube_master_data_dir }}"
 kube_controller_manager_allocate_node_cidrs: yes
@@ -89,6 +91,7 @@ kube_controller_manager_verbosity: 2
 #--------------------------------
 # Set scheduler default variables
 #--------------------------------
+kube_scheduler_service_force_restart: no
 kube_scheduler_binary_path: "{{ kube_master_binary_path }}"
 kube_scheduler_leader_elect: yes
 kube_scheduler_master: http://{{ ansible_default_ipv4.address }}:8080

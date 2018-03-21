@@ -31,3 +31,8 @@
     state: started
     enabled: yes
   become: yes
+
+- name: restart kube-scheduler on condition
+  command: /bin/true
+  notify: restart kube-scheduler
+  when: kube_scheduler_service_force_restart
