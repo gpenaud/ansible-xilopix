@@ -2,7 +2,7 @@ Vagrant::DEFAULT_SERVER_URL.replace('https://vagrantcloud.com')
 
 IMAGE = 'debian/stretch64'
 NODES = [
-  'vagrant-boxes-base-no-dhcp'
+  'vagrant-boxes-base-with-dhcp'
 ]
 
 CONFIGURATION_VERSION = 2
@@ -18,16 +18,13 @@ Vagrant.configure(CONFIGURATION_VERSION) do |config|
       end
 
       #
-      # Run Ansible from the Vagrant Host
+      # Run functionnal test playbook
       #
       config.vm.provision "ansible", run: "always" do |ansible|
-        ansible.playbook    = "#{ENV['ANSIBLE_PERSONAL_PATH']}/playbooks/vagrant-boxes/base/no-dhcp/playbook.yml"
-        ansible.config_file = ENV['ANSIBLE_PERSONAL_CONFIG']
-        ansible.extra_vars = {
-          dhcp: false
-        }
+        ansible.playbook    = 'test.yml'
+        ansible.config_file = '../../ansible.cfg'
         ansible.groups = {
-          "vagrant-box" => ["vagrant-boxes-base-no-dhcp"]
+          "vagrant-box" => ["vagrant-boxes-base-with-dhcp"]
         }
       end
     end

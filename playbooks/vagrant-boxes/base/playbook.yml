@@ -4,10 +4,11 @@
   become: yes
 
   vars:
-    dhcp:     yes
-    user:     "{{ lookup('env', 'ANSIBLE_PERSONAL_USER') }}"
-    password: "{{ lookup('env', 'ANSIBLE_PERSONAL_PASSWORD') }}"
-    key_file: "{{ lookup('env', 'ANSIBLE_PERSONAL_PUBKEYFILE') }}"
+    dhcp:                   yes
+    generate_ssh_host_keys: yes
+    user:                   "{{ lookup('env', 'ANSIBLE_PERSONAL_USER') }}"
+    password:               "{{ lookup('env', 'ANSIBLE_PERSONAL_PASSWORD') }}"
+    key_file:               "{{ lookup('env', 'ANSIBLE_PERSONAL_PUBKEYFILE') }}"
 
   tasks:
     - name: install some base packages
@@ -15,6 +16,7 @@
         name: "{{ item }}"
         update_cache: yes
       with_items:
+        - ssh
         - git
         - sudo
         - curl
@@ -74,14 +76,21 @@
           auto lo
           iface lo inet loopback
 
-          {% if dhcp %}
-          auto eth0
-          iface eth0 inet dhcp
-          {% else %}
-          iface eth0 inet manual
-          {% endif %}
+          {% for interface in (hostvars[ansible_hostname]['ansible_interfaces'] | difference(['lo'])) %}
+          auto {{ interface }}
+          iface {{ interface }} inet {{ dhcp | ternary('dhcp','manual') }}
+          {% endfor %}
         dest: /etc/network/interfaces
         backup: yes
+
+    - name: regenerate ssh host keys
+      shell: /usr/bin/ssh-keygen -A
+      args:
+        chdir: /etc/ssh
+        executable: /bin/bash
+      become: yes
+
+      # when: generate_ssh_host_keys
 
     - name: checkout dotfiles repository from my personal github account
       git:
@@ -103,6 +112,12 @@
 
     - name: install goss to server (part 2)
       command: bash /tmp/goss_install.sh
+
+  handlers:
+    - name: restart ssh
+      service:
+        name: ssh
+        state: restarted
 
   # roles:
   #   - role: docker
