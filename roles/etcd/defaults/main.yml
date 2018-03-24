@@ -31,8 +31,7 @@ etcd_clients_advertising:
   - "{{ etcd_protocol }}://{{ ansible_default_ipv4.address }}:{{ etcd_client_port }}"
 
 # etcd cluster definition
-cluster_members: "{{ play_hosts | sort }}"
 etcd_cluster: |
-  {% for member in cluster_members -%}
-  {{ member }}={{ etcd_protocol }}://{{ hostvars[member].ansible_default_ipv4.address }}:{{ etcd_server_port }},
+  {% for member in ansible_play_hosts -%}
+  {{ member | regex_replace('[.].*') }}={{ etcd_protocol }}://{{ hostvars[member].ansible_default_ipv4.address }}:{{ etcd_server_port }},
   {%- endfor %}
