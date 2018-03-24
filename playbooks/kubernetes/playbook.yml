@@ -3,10 +3,8 @@
   hosts:
     - master0
     - master1
-    - master2
     - worker0
     - worker1
-    - worker2
   roles:
     - role: cfssl
       vars:
@@ -19,7 +17,6 @@
   hosts:
     - master0
     - master1
-    - master2
 
   roles:
     - role: etcd
@@ -34,7 +31,6 @@
   hosts:
     - master0
     - master1
-    - master2
   roles:
     - role: k8s-master
       vars:
@@ -43,7 +39,6 @@
         kube_apiserver_etcd_members:
           - master0.lxc.lan
           - master1.lxc.lan
-          - master2.lxc.lan
         kube_controller_manager_service_force_restart: yes
         kube_scheduler_service_force_restart: yes
       tags:
@@ -53,7 +48,6 @@
   hosts:
     - worker0
     - worker1
-    - worker2
   roles:
     - role: k8s-worker
       vars:

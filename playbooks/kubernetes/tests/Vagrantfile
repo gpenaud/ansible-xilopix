@@ -1,49 +1,74 @@
 CONFIGURATION_VERSION = 2
-IMAGE = 'base-with-dhcp'
 
-LXC_NODES = [
-  'master0',
-  'master1',
-  # 'master2'
-]
+# ------------------------------------------
+# Cluster configuration
+# ------------------------------------------
 
-KVM_NODES = [
-  'worker0',
-  'worker1',
-  # 'worker2'
-]
+IMAGE_LXC     = 'lxc-base'
+IMAGE_LIBVIRT = 'libvirt-base'
+
+LXC_NODES = {
+  'master0' => '00:12:41:77:f9:20',
+  'master1' => '00:12:41:77:f9:21',
+}
+
+KVM_NODES = {
+  'worker0' => '00:12:41:77:f9:30',
+  'worker1' => '00:12:41:77:f9:31',
+}
+
+# ------------------------------------------
 
 Vagrant.configure(CONFIGURATION_VERSION) do |config|
-  config.vm.box = IMAGE
-  LXC_NODES.each do |node_name|
-    config.vm.define node_name do |lxc_node|
-      lxc_node.vm.hostname = node_name
-      lxc_node.vm.provider :lxc do |lxc|
-        lxc.container_name  = :machine
-        lxc.customize 'network.link', 'lxc-bridge'
+  config.ssh.username         = ENV['ANSIBLE_PERSONAL_USER']
+  config.ssh.private_key_path = ENV['ANSIBLE_PERSONAL_KEYFILE']
+
+  config.vm.provision "shell", run: "always" do |shell|
+    shell.inline = 'sudo dhclient -v 2>/dev/null'
+  end
+
+  unless LXC_NODES.empty?
+    LXC_NODES.each do |node_name, node_mac_address|
+      config.vm.define node_name do |lxc_node|
+        lxc_node.vm.box = IMAGE_LXC
+        lxc_node.vm.hostname = node_name
+        lxc_node.vm.provider :lxc do |lxc|
+          lxc.container_name  = :machine
+          lxc.customize 'network.link', 'k8s-bridge'
+          lxc.customize 'network.hwaddr', node_mac_address
+        end
       end
-      # to get dns entry in dnsmasq
-      lxc_node.vm.provision "shell", inline: "dhclient eth0"
+    end
+  end
+
+  unless KVM_NODES.empty?
+    KVM_NODES.each do |node_name, node_mac_address|
+      config.vm.define node_name do |kvm_node|
+        kvm_node.vm.box = IMAGE_LIBVIRT
+        kvm_node.vm.hostname = node_name
+        kvm_node.vm.synced_folder './', '/vagrant', type: 'rsync'
+        kvm_node.vm.provider :libvirt do |kvm|
+          kvm.driver   = 'qemu'
+          kvm.cpus   = 1
+          kvm.memory = 1024
+          kvm.storage_pool_name = "ssd"
+          kvm.mgmt_attach = false
+        end
+
+        kvm_node.vm.network :public_network,
+          :mac      => node_mac_address,
+          :dev     => 'k8s-bridge',
+          :type    => 'bridge'
+      end
+
+      # config.vm.provision "ansible", run: "always" do |ansible|
+      #   ansible.playbook    = "#{ENV['ANSIBLE_PERSONAL_PATH']}/playbooks/vagrant-boxes/base/libvirt.yml"
+      #   ansible.config_file = ENV['ANSIBLE_PERSONAL_CONFIG']
+      #   ansible.groups = {
+      #     "vagrant-box" => KVM_NODES.keys
+      #   }
+      # end
     end
   end
 end
 
-Vagrant.configure(CONFIGURATION_VERSION) do |config|
-  config.vm.box = IMAGE
-  KVM_NODES.each do |node_name|
-    config.vm.define node_name do |kvm_node|
-      kvm_node.vm.hostname = node_name
-      kvm_node.vm.synced_folder './', '/vagrant', type: 'rsync'
-      kvm_node.vm.provider :libvirt do |kvm|
-        kvm.driver   = 'qemu'
-        kvm.cpus   = 1
-        kvm.memory = 512
-        kvm.storage_pool_name = "default"
-      end
-
-      kvm_node.vm.network :public_network,
-        :dev  => "lxc-bridge",
-        :type => "bridge"
-    end
-  end
-end

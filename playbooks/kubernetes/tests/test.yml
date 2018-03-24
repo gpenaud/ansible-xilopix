@@ -1,10 +1,7 @@
 ---
+
 - name: deploy cfssl certificates for both masters and workers kubernetes instances
-  hosts:
-    - master0
-    - master1
-    - worker0
-    - worker1
+  hosts: cfssl
   roles:
     - role: cfssl
       vars:
@@ -14,10 +11,7 @@
         - cfssl
 
 - name: deploy etcd cluster
-  hosts:
-    - master0
-    - master1
-
+  hosts: etcd
   roles:
     - role: etcd
       vars:
@@ -28,32 +22,33 @@
         - etcd
 
 - name: deploy kubernetes components for masters
-  hosts:
-    - master0
-    - master1
+  hosts: masters
   roles:
     - role: k8s-master
       vars:
         kube_apiserver_service_force_restart: yes
         kube_apiserver_certs_path: /var/lib/kubernetes/certs
         kube_apiserver_etcd_members:
-          - master0.lxc.lan
-          - master1.lxc.lan
+          - master0.k8s.lan
+          - master1.k8s.lan
         kube_controller_manager_service_force_restart: yes
         kube_scheduler_service_force_restart: yes
       tags:
         - k8s-master
 
 - name: deploy kubernetes components for masters
-  hosts:
-    - worker0
-    - worker1
+  hosts: workers
   roles:
     - role: k8s-worker
       vars:
+        docker_storage_driver: overlay
         kubelet_certs_path: /var/lib/kubernetes/certs
         kubelet_service_force_restart: yes
+        kubelet_conf_main_cluster_server: https://master0.k8s.lan:6443
+        kubelet_api_servers:
+          - master0.k8s.lan
+          - master1.k8s.lan
         kube_proxy_service_force_restart: yes
-        kube_proxy_master_host: https://master0.lxc.lan:6443
+        kube_proxy_master_host: https://master0.k8s.lan:6443
       tags:
         - k8s-worker

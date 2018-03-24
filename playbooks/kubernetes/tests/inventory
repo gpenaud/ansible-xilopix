@@ -1,0 +1,17 @@
+[cfssl]
+master0.k8s.lan
+master1.k8s.lan
+worker0.k8s.lan
+worker1.k8s.lan
+
+[etcd]
+master0.k8s.lan
+master1.k8s.lan
+
+[masters]
+master0.k8s.lan
+master1.k8s.lan
+
+[workers]
+worker0.k8s.lan
+worker1.k8s.lan
