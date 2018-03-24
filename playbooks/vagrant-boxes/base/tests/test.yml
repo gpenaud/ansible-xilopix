@@ -4,8 +4,6 @@
   become: yes
 
   vars:
-    dhcp:                   yes
-    generate_ssh_host_keys: yes
     user:                   "{{ lookup('env', 'ANSIBLE_PERSONAL_USER') }}"
     password:               "{{ lookup('env', 'ANSIBLE_PERSONAL_PASSWORD') }}"
     key_file:               "{{ lookup('env', 'ANSIBLE_PERSONAL_PUBKEYFILE') }}"
@@ -16,7 +14,6 @@
         name: "{{ item }}"
         update_cache: yes
       with_items:
-        - ssh
         - git
         - sudo
         - curl
@@ -78,19 +75,30 @@
 
           {% for interface in (hostvars[ansible_hostname]['ansible_interfaces'] | difference(['lo'])) %}
           auto {{ interface }}
-          iface {{ interface }} inet {{ dhcp | ternary('dhcp','manual') }}
+          iface {{ interface }} inet dhcp
           {% endfor %}
         dest: /etc/network/interfaces
         backup: yes
 
-    - name: regenerate ssh host keys
-      shell: /usr/bin/ssh-keygen -A
-      args:
-        chdir: /etc/ssh
-        executable: /bin/bash
-      become: yes
+    - name: template out dhclient hook file
+      copy:
+        content: |
+          if [ "$reason" = "BOUND" ] || [ "$reason" = "RENEW" ] || [ "$reason" = "REBIND" ] || [ "$reason" = "REBOOT" ]; then
+            echo new_ip_address=$new_ip_address
+            echo new_host_name=$new_host_name
+            echo new_domain_name=$new_domain_name
 
-      # when: generate_ssh_host_keys
+            new_fqdn="$new_host_name.$new_domain_name"
+            echo new_fqdn=$new_fqdn
+
+            echo "127.0.0.1 $new_fqdn $new_host_name" > /etc/hosts
+            echo "$new_ip_address $new_fqdn $new_host_name" >> /etc/hosts
+          fi
+
+          exit 0
+        dest: /etc/dhcp/dhclient-exit-hooks.d/hostname
+        mode: 0700
+        backup: yes
 
     - name: checkout dotfiles repository from my personal github account
       git:
@@ -112,13 +120,3 @@
 
     - name: install goss to server (part 2)
       command: bash /tmp/goss_install.sh
-
-  handlers:
-    - name: restart ssh
-      service:
-        name: ssh
-        state: restarted
-
-  # roles:
-  #   - role: docker
-  #     tags: docker

@@ -1,5 +1,5 @@
 ---
-- name: configure a vagrant base box
+- name: Huge hack to avoid libvirt strange bug
   hosts: vagrant-box
   become: yes
 
@@ -9,65 +9,6 @@
     key_file:               "{{ lookup('env', 'ANSIBLE_PERSONAL_PUBKEYFILE') }}"
 
   tasks:
-    - name: install some base packages
-      apt:
-        name: "{{ item }}"
-        update_cache: yes
-      with_items:
-        - git
-        - sudo
-        - curl
-        - vim
-        - netcat-openbsd
-        - dnsutils
-
-    - name: "create {{ user }} group in box"
-      group:
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - "{{ user }}"
-        - administrator
-
-    - name: "create {{ user }} user in box"
-      user:
-        name: "{{ user }}"
-        password: "{{ password }}"
-        shell: /bin/bash
-        comment: "{{ user }} only user, accessible through ssh with personal key"
-        group: "{{ user }}"
-        groups: adm,sudo
-        append: yes
-
-    - name: "set authorized key took from {{ user }}"
-      authorized_key:
-        user: "{{ user }}"
-        state: present
-        key: "{{ lookup('file', key_file) }}"
-
-    - name: allow 'administrator' group to have passwordless sudo
-      lineinfile:
-        dest: /etc/sudoers
-        state: present
-        regexp: '^%administrator'
-        line: '%administrator ALL=(ALL) NOPASSWD: ALL'
-        validate: 'visudo -cf %s'
-
-    - name: "add {{ user }} to administrator group"
-      user:
-        state: present
-        name: "{{ user }}"
-        groups: administrator
-        append: yes
-
-    - name: "allow {{ user }} user to have passwordless sudo"
-      lineinfile:
-        dest: /etc/sudoers
-        state: present
-        regexp: '^{{ user }}'
-        line: '{{ user }} ALL=(ALL) NOPASSWD: ALL'
-        validate: 'visudo -cf %s'
-
     - name: template out interfaces file
       copy:
         content: |
@@ -101,10 +42,17 @@
         mode: 0700
         backup: yes
 
+    - name: remove dotfiles repository
+      file:
+        path: "{{ lookup('env', 'HOME') }}/dotfiles"
+        state: absent
+        force: yes
+
     - name: checkout dotfiles repository from my personal github account
       git:
         repo: "https://github.com/{{ user }}/dotfiles.git"
         dest: "{{ lookup('env', 'HOME') }}/dotfiles"
+        force: yes
       become_user: "{{ user }}"
 
     - name: execute setup.sh from dotfiles repository
@@ -113,11 +61,3 @@
         DOTFILES_DIR: "{{ lookup('env', 'HOME') }}/dotfiles"
         DOTFILES_ENV_FILE: lxc
       become_user: "{{ user }}"
-
-    - name: install goss to server (part 1)
-      get_url:
-        url: https://goss.rocks/install
-        dest: /tmp/goss_install.sh
-
-    - name: install goss to server (part 2)
-      command: bash /tmp/goss_install.sh

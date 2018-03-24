@@ -1,7 +1,8 @@
-# the dynamic inventory path
-INVENTORY=${ANSIBLE_PERSONAL_PATH}/inventories/dynamic/vagrant
 # the current playbook test directory
 PLAYBOOK_TEST_PATH=${ANSIBLE_PERSONAL_PATH}/playbooks/$(playbook)/tests
+# the dynamic inventory path
+# INVENTORY=${ANSIBLE_PERSONAL_PATH}/inventories/dynamic/vagrant
+INVENTORY=${PLAYBOOK_TEST_PATH}/inventory
 # test teh server specifications
 GOSS_CMD=goss -g /etc/server-validation.yml validate
 SSH=ssh -x -t -o "StrictHostKeyChecking=no"
