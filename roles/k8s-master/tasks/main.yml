@@ -3,17 +3,17 @@
 - name: main - install kube-api-server
   include: kube-api-server.yml
   tags:
-    - api-server
+    - kube-apiserver
 
 - name: main - install kube-controller-manager
   include: kube-controller-manager.yml
   tags:
-    - controller-manager
+    - kube-controller-manager
 
 - name: main - install kube-scheduler
   include: kube-scheduler.yml
   tags:
-    - scheduler
+    - kube-scheduler
 
 - name: main - install token, policies and kubectl
   include: common.yml

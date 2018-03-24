@@ -6,7 +6,7 @@
     path: "{{ directory }}"
   with_items:
     - "{{ kube_master_binary_path }}"
-    - "{{ kube_master_data_dir }}"
+    - "{{ kube_master_kubeconfig_path }}"
   loop_control:
     loop_var: directory
   become: yes
@@ -16,27 +16,4 @@
     url: "{{ kubectl_package_url }}"
     dest: "{{ kube_master_binary_path }}/kubectl"
     mode: 0755
-  become: yes
-
-# - name: policies - add policies files
-#   include_vars:
-#     file: files/authorization-policy.yml
-#     name: included
-#
-# - name: policies - upload authorization policy yaml content file
-#   copy:
-#     content: "{{ included.policies | from_yaml | to_nice_json }}"
-#     dest: "{{ kube_master_data_dir }}/authorization-policy.json"
-#   become: yes
-
-- name: policies - upload authorization policy file
-  copy:
-    src: files/authorization-policy.jsonl
-    dest: "{{ kube_master_data_dir }}/authorization-policy.jsonl"
-  become: yes
-
-- name: tokens - add tokens template
-  template:
-    src: templates/token.j2
-    dest: "{{ kube_master_data_dir }}/token.csv"
   become: yes

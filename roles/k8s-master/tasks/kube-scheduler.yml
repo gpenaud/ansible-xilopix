@@ -17,6 +17,12 @@
     mode: 0755
   become: yes
 
+- name: configure - copy kubeconfig configuration for scheduler
+  copy:
+    content: "{{ kube_scheduler_configuration | to_nice_yaml }}"
+    dest: "{{ kube_master_kubeconfig_path }}/kubeconfig-scheduler"
+  become: yes
+
 - name: configure - define systemd service for etcd
   template:
     src: templates/kube-scheduler.service.j2

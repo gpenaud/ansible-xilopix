@@ -18,6 +18,18 @@
     mode: 0755
   become: yes
 
+- name: policies - upload authorization policy file
+  copy:
+    src: files/authorization-policy.jsonl
+    dest: "{{ kube_master_data_dir }}/authorization-policy.jsonl"
+  become: yes
+
+- name: tokens - add tokens template
+  template:
+    src: templates/token.j2
+    dest: "{{ kube_master_data_dir }}/token.csv"
+  become: yes
+
 - name: configure - define systemd service for kube-apiserver
   template:
     src: templates/kube-apiserver.service.j2

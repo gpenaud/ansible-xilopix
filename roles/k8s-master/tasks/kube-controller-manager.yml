@@ -18,6 +18,12 @@
     mode: 0755
   become: yes
 
+- name: configure - copy kubeconfig configuration for controller-manager
+  copy:
+    content: "{{ kube_controller_manager_configuration | to_nice_yaml }}"
+    dest: "{{ kube_master_kubeconfig_path }}/kubeconfig-controller-manager"
+  become: yes
+
 - name: configure - define systemd service for etcd
   template:
     src: templates/kube-controller-manager.service.j2

@@ -3,7 +3,7 @@
 #-----------------------------------
 # Common kubernetes master variables
 #-----------------------------------
-kube_package_version: 1.4.7
+kube_package_version: 1.9.6
 kube_release_url: "https://storage.googleapis.com/kubernetes-release/release/v{{ kube_package_version }}/bin/linux/amd64"
 
 kube_api_server_package_url: "{{ kube_release_url }}/kube-apiserver"
@@ -13,6 +13,8 @@ kubectl_package_url: "{{ kube_release_url }}/kubectl"
 
 kube_master_binary_path: /usr/local/bin
 kube_master_data_dir: /var/lib/kubernetes
+kube_master_certs_path: "{{ kube_master_data_dir }}/certs"
+kube_master_kubeconfig_path: "{{ kube_master_data_dir }}"
 kube_apiserver_service_force_restart: no
 
 kube_tokens:
@@ -27,6 +29,10 @@ kube_tokens:
   - user: kubelet
     group: kubelet
     token: hbgith7aWi1aegheifeRhdaiLahVie3z
+
+kube_master_tls_cert_file: "{{ kube_master_certs_path }}/kubernetes.pem"
+kube_master_tls_key_file: "{{ kube_master_certs_path }}/kubernetes-key.pem"
+kube_master_ca_cert_file: "{{ kube_master_certs_path }}/ca.pem"
 
 #----------------------------------
 # Set API server defaults variables
@@ -48,14 +54,7 @@ kube_apiserver_count: 3
 kube_apiserver_authorization_mode: ABAC
 kube_apiserver_authorization_policy_file: /var/lib/kubernetes/authorization-policy.jsonl
 kube_apiserver_enable_swagger_ui: yes
-
-kube_apiserver_certs_path: "{{ kube_apiserver_data_dir }}"
-kube_apiserver_etcd_cafile: "{{ kube_apiserver_certs_path }}/ca.pem"
-kube_apiserver_kubelet_certificate_authority: "{{ kube_apiserver_certs_path }}/ca.pem"
-kube_apiserver_service_account_key_file: "{{ kube_apiserver_certs_path }}/kubernetes-key.pem"
-kube_apiserver_tls_cert_file: "{{ kube_apiserver_certs_path }}/kubernetes.pem"
 kube_apiserver_tls_private_key_file: "{{ kube_apiserver_certs_path }}/kubernetes-key.pem"
-
 kube_apiserver_service_cluster_ip_range: 10.32.0.0/16
 kube_apiserver_service_node_port_range: "30000-32767"
 kube_apiserver_token_auth_file: /var/lib/kubernetes/token.csv
@@ -82,17 +81,57 @@ kube_controller_manager_allocate_node_cidrs: yes
 kube_controller_manager_cluster_cidr: 10.200.0.0/16
 kube_controller_manager_cluster_name: kubernetes
 kube_controller_manager_leader_elect: yes
-kube_controller_manager_master: http://{{ ansible_default_ipv4.address }}:8080
-kube_controller_manager_root_ca_file: /var/lib/kubernetes/ca.pem
-kube_controller_manager_service_account_private_key_file: /var/lib/kubernetes/kubernetes-key.pem
 kube_controller_manager_service_cluster_ip_range: 10.32.0.0/16
 kube_controller_manager_verbosity: 2
+
+# Kubeconfig for scheduler
+kube_scheduler_configuration:
+  apiVersion: v1
+  kind: Config
+  users:
+  - name: kubernetes
+    user:
+      client-certificate: "{{ kube_master_tls_cert_file }}"
+      client-key: "{{ kube_master_tls_key_file }}"
+      token: hbgith7aWi1aegheifeRhdaiLahVie3z
+  clusters:
+  - name: kubernetes
+    cluster:
+      certificate-authority: "{{ kube_master_ca_cert_file }}"
+      server: https://master0.k8s.lan:6443
+  contexts:
+  - context:
+      cluster: kubernetes
+      user: scheduler
+    name: scheduler
+  current-context: scheduler
 
 #--------------------------------
 # Set scheduler default variables
 #--------------------------------
-kube_scheduler_service_force_restart: no
+kube_controller_manager_service_force_restart: no
 kube_scheduler_binary_path: "{{ kube_master_binary_path }}"
 kube_scheduler_leader_elect: yes
-kube_scheduler_master: http://{{ ansible_default_ipv4.address }}:8080
 kube_scheduler_verbosity: 2
+
+# Kubeconfig for scheduler
+kube_controller_manager_configuration:
+  apiVersion: v1
+  kind: Config
+  users:
+  - name: kubernetes
+    user:
+      client-certificate: "{{ kube_master_tls_cert_file }}"
+      client-key: "{{ kube_master_tls_key_file }}"
+      token: hbgith7aWi1aegheifeRhdaiLahVie3z
+  clusters:
+  - name: kubernetes
+    cluster:
+      certificate-authority: "{{ kube_master_ca_cert_file }}"
+      server: https://master0.k8s.lan:6443
+  contexts:
+  - context:
+      cluster: kubernetes
+      user: controller-manager
+    name: controller-manager
+  current-context: controller-manager
