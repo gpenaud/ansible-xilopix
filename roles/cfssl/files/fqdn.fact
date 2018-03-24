@@ -1,9 +1,0 @@
-#!/bin/bash
-
-FQDN=$(hostname -A)
-
-cat <<EOF
-{
-    "fqdn" : "$FQDN"
-}
-EOF
