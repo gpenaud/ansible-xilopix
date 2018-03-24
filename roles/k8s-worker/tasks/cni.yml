@@ -8,7 +8,10 @@
 - name: install - create data directory for cni plugin
   file:
     state: directory
-    path: "{{ cni_plugin_path }}"
+    path: "{{ item }}"
+  with_items:
+    - "{{ cni_plugin_path }}"
+    - "{{ cni_conf_path }}"
   become: yes
 
 - name: install - install cni plugin
@@ -18,3 +21,12 @@
     remote_src: yes
   become: yes
   when: not cni_plugin.stat.exists
+
+- name: configure - add cni plugin configuration
+  template:
+    src: templates/cni.conf.j2
+    dest: "{{ cni_conf_file }}"
+  notify:
+    - restart kubelet
+    - restart kube-proxy
+  become: yes

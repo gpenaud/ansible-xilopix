@@ -1,0 +1,12 @@
+{
+  "cniVersion": "{{ cni_version }}",
+  "name": "{{ cni_network_name }}",
+  "type": "{{ cni_network_type }}",
+  "bridge": "{{ cni_network_bridge }}",
+  "isGateway": "{{ cni_network_is_gateway | lower }}",
+  "ipMasq": "{{ cni_network_ip_mask | lower }}",
+  "ipam": {
+    "type": "{{ cni_network_ipam_type }}",
+    "subnet": "{{ cni_network_ipam_subnet }}"
+  }
+}

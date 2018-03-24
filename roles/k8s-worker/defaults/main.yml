@@ -20,11 +20,21 @@ docker_storage_driver: aufs
 cni_sha_version: 07a8a28637e97b22eb8dfe710eeae1344f69d16e
 cni_package_url: https://storage.googleapis.com/kubernetes-release/network-plugins/cni-{{ cni_sha_version }}.tar.gz
 cni_plugin_path: /opt/cni
+cni_conf_path: /etc/cni/net.d
+cni_conf_file: "{{ cni_conf_path }}/kube.conf"
+cni_version: 0.5.2
+cni_network_name: kubernetes-net
+cni_network_type: bridge
+cni_network_bridge: cni0
+cni_network_is_gateway: yes
+cni_network_ip_mask: yes
+cni_network_ipam_type: host-local
+cni_network_ipam_subnet: 10.200.0.0/16
 
 #-----------------------------------
 # Common kubernetes worker variables
 #-----------------------------------
-kube_package_version: 1.4.7
+kube_package_version: 1.9.6
 kube_release_url: "https://storage.googleapis.com/kubernetes-release/release/v{{ kube_package_version }}/bin/linux/amd64"
 kubectl_package_url: "{{ kube_release_url }}/kubectl"
 kubelet_package_url: "{{ kube_release_url }}/kubelet"
@@ -45,7 +55,7 @@ kubelet_api_servers:
   - master2.lxc.lan
 kubelet_servers: |
   {% for server in kubelet_api_servers -%}
-  {{ kubelet_protocol }}://{{ server }}:{{ kubelet_api_port }},
+  {{ kubelet_protocol }}://{{ hostvars[server].ansible_default_ipv4.address }}:{{ kubelet_api_port }},
   {%- endfor %}
 
 kubelet_cloud_provider:
@@ -54,44 +64,47 @@ kubelet_cluster_domain: cluster.local
 kubelet_configure_cbr0: yes
 kubelet_container_runtime: docker
 kubelet_docker: unix:///var/run/docker.sock
-kubelet_network_plugin: kubenet
+kubelet_network_plugin: cni
 kubelet_kubeconfig_path: /var/lib/kubelet
 kubelet_reconcile_cidr: yes
 kubelet_serialize_image_pulls: no
 kubelet_tls_cert_file: "{{ kubelet_certs_path }}/kubernetes.pem"
 kubelet_tls_private_key_file: "{{ kubelet_certs_path }}/kubernetes-key.pem"
+kubelet_tls_ca_file: "{{ kubelet_certs_path }}/ca.pem"
 kubelet_verbosity: 2
 
 #---------------------------------------------------
 # Kubelet variables for worker cluster configuration
 #---------------------------------------------------
-kubelet_conf_main_cluster_name: kubernetes
-kubelet_conf_main_cluster_cert_ca: "{{ kubelet_certs_path }}/ca.pem"
-kubelet_conf_main_cluster_server: https://master0.lxc.lan:6443
-kubelet_conf_main_cluster_context_user: kubelet
-kubelet_conf_main_cluster_context_name: kubelet
-kubelet_conf_main_cluster_current_context: kubelet
-kubelet_conf_main_cluster_user_name: kubelet
-kubelet_conf_main_cluster_user_token: hbgith7aWi1aegheifeRhdaiLahVie3z
+kubeconfig_cluster_name: kubernetes
+kubeconfig_cluster_cert_ca: "{{ kubelet_certs_path }}/ca.pem"
+kubeconfig_cluster_api_server: https://master0.k8s.lan:6443
+kubeconfig_cluster_context_user: kubelet
+kubeconfig_cluster_context_name: kubelet
+kubeconfig_cluster_current_context: kubelet
+kubeconfig_cluster_user_name: kubelet
+kubeconfig_cluster_user_token: hbgith7aWi1aegheifeRhdaiLahVie3z
 
 kubelet_configuration:
   apiVersion: v1
   kind: Config
-  clusters:
-    - cluster:
-        certificate-authority: "{{ kubelet_conf_main_cluster_cert_ca }}"
-        server: "{{ kubelet_conf_main_cluster_server }}"
-        name: "{{ kubelet_conf_main_cluster_name }}"
-  contexts:
-    - context:
-        cluster: "{{ kubelet_conf_main_cluster_name }}"
-        user: "{{ kubelet_conf_main_cluster_context_user }}"
-        name: "{{ kubelet_conf_main_cluster_context_name }}"
-  current-context: "{{ kubelet_conf_main_cluster_current_context }}"
   users:
-    - name: "{{ kubelet_conf_main_cluster_user_name }}"
-      user:
-        token: "{{ kubelet_conf_main_cluster_user_token }}"
+  - name: "{{ kubeconfig_cluster_user_name }}"
+    user:
+      token: "{{ kubeconfig_cluster_user_token }}"
+      client-certificate: "{{ kubelet_tls_cert_file }}"
+      client-key: "{{ kubelet_tls_private_key_file }}"
+  clusters:
+  - name: kubernetes
+    cluster:
+      certificate-authority: "{{ kubelet_tls_ca_file }}"
+      server: "{{ kubeconfig_cluster_api_server }}"
+  contexts:
+  - context:
+      cluster: "{{ kubeconfig_cluster_name }}"
+      user: "{{ kubeconfig_cluster_context_user }}"
+    name: "{{ kubeconfig_cluster_context_name }}"
+  current-context: "{{ kubeconfig_cluster_current_context }}"
 
 #-----------------------------------------------
 # Kube-proxy variables for workers configuration
