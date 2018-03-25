@@ -5,12 +5,13 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 [Service]
 ExecStart={{ kube_controller_manager_binary_path }}/kube-controller-manager \
   --allocate-node-cidrs={{ kube_controller_manager_allocate_node_cidrs | lower }} \
+  --cluster-name={{ kube_controller_manager_cluster_name }} \
   --cluster-cidr={{ kube_controller_manager_cluster_cidr }} \
+  --master={{ kube_controller_manager_master }} \
   --leader-elect={{ kube_controller_manager_leader_elect | lower }} \
   --service-cluster-ip-range={{ kube_controller_manager_service_cluster_ip_range }} \
-  --master=https://master0.k8s.lan:6443 \
-  --service-account-private-key-file=/var/lib/kubernetes/certs/kubernetes-key.pem \
-  --root-ca-file=/var/lib/kubernetes/certs/ca.pem \
+  --service-account-private-key-file={{ kube_master_tls_key_file }} \
+  --root-ca-file={{ kube_master_ca_cert_file }} \
   --kubeconfig={{ kube_master_kubeconfig_path }}/kubeconfig-controller-manager \
   --v={{ kube_controller_manager_verbosity }}
 Restart=on-failure

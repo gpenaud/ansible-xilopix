@@ -16,3 +16,12 @@ etcdctl \
 
 ## master nodes validation (on master)
 kubectl get componentstatuses
+
+TOKEN=prA5ahie3ohtoo4boogvre6quipheaTh
+CERT_PATH=/var/lib/kubernetes/certs
+curl \
+  --header "Authorization: Bearer $TOKEN" \
+  --cert $CERT_PATH/kubernetes.pem \
+  --key $CERT_PATH/kubernetes-key.pem \
+  --cacert $CERT_PATH/ca.pem \
+  https://master0.k8s.lan:6443/healthz

@@ -38,7 +38,7 @@ kube_master_ca_cert_file: "{{ kube_master_certs_path }}/ca.pem"
 # Set API server defaults variables
 #----------------------------------
 kube_apiserver_bind_address: 0.0.0.0
-kube_apiserver_insecure_bind_address: "{{ kube_apiserver_bind_address }}"
+kube_apiserver_insecure_bind_address: 127.0.0.1
 kube_apiserver_binary_path: "{{ kube_master_binary_path }}"
 kube_apiserver_data_dir: "{{ kube_master_data_dir }}"
 
@@ -80,9 +80,40 @@ kube_controller_manager_data_dir: "{{ kube_master_data_dir }}"
 kube_controller_manager_allocate_node_cidrs: yes
 kube_controller_manager_cluster_cidr: 10.200.0.0/16
 kube_controller_manager_cluster_name: kubernetes
+kube_controller_manager_master: http://master0.k8s.lan:8080
 kube_controller_manager_leader_elect: yes
 kube_controller_manager_service_cluster_ip_range: 10.32.0.0/16
 kube_controller_manager_verbosity: 2
+
+# Kubeconfig for controller-manager
+kube_controller_manager_configuration:
+  apiVersion: v1
+  kind: Config
+  users:
+  - name: kubernetes
+    user:
+      client-certificate: "{{ kube_master_tls_cert_file }}"
+      client-key: "{{ kube_master_tls_key_file }}"
+      token: hbgith7aWi1aegheifeRhdaiLahVie3z
+  clusters:
+  - name: kubernetes
+    cluster:
+      certificate-authority: "{{ kube_master_ca_cert_file }}"
+      # server: "{{ kube_controller_manager_master }}"
+  contexts:
+  - context:
+      cluster: kubernetes
+      user: controller-manager
+    name: controller-manager
+  current-context: controller-manager
+
+#--------------------------------
+# Set scheduler default variables
+#--------------------------------
+kube_controller_manager_service_force_restart: no
+kube_scheduler_binary_path: "{{ kube_master_binary_path }}"
+kube_scheduler_leader_elect: yes
+kube_scheduler_verbosity: 2
 
 # Kubeconfig for scheduler
 kube_scheduler_configuration:
@@ -98,7 +129,7 @@ kube_scheduler_configuration:
   - name: kubernetes
     cluster:
       certificate-authority: "{{ kube_master_ca_cert_file }}"
-      server: https://master0.k8s.lan:6443
+      server: http://master0.k8s.lan:8080
   contexts:
   - context:
       cluster: kubernetes
@@ -106,32 +137,3 @@ kube_scheduler_configuration:
     name: scheduler
   current-context: scheduler
 
-#--------------------------------
-# Set scheduler default variables
-#--------------------------------
-kube_controller_manager_service_force_restart: no
-kube_scheduler_binary_path: "{{ kube_master_binary_path }}"
-kube_scheduler_leader_elect: yes
-kube_scheduler_verbosity: 2
-
-# Kubeconfig for scheduler
-kube_controller_manager_configuration:
-  apiVersion: v1
-  kind: Config
-  users:
-  - name: kubernetes
-    user:
-      client-certificate: "{{ kube_master_tls_cert_file }}"
-      client-key: "{{ kube_master_tls_key_file }}"
-      token: hbgith7aWi1aegheifeRhdaiLahVie3z
-  clusters:
-  - name: kubernetes
-    cluster:
-      certificate-authority: "{{ kube_master_ca_cert_file }}"
-      server: https://master0.k8s.lan:6443
-  contexts:
-  - context:
-      cluster: kubernetes
-      user: controller-manager
-    name: controller-manager
-  current-context: controller-manager

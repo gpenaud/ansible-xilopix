@@ -14,6 +14,6 @@
 - name: install - download kubectl binary
   get_url:
     url: "{{ kubectl_package_url }}"
-    dest: "{{ kube_master_binary_path }}/kubectl"
+    dest: "{{ kube_worker_binary_path }}/kubectl"
     mode: 0755
   become: yes
