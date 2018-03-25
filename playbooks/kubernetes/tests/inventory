@@ -13,5 +13,5 @@ master0.k8s.lan
 master1.k8s.lan
 
 [workers]
-worker0.k8s.lan
-worker1.k8s.lan
+worker0.k8s.lan node_cidr=10.200.0.0/24
+worker1.k8s.lan node_cidr=10.200.1.0/24

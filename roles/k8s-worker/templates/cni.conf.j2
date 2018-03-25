@@ -3,10 +3,16 @@
   "name": "{{ cni_network_name }}",
   "type": "{{ cni_network_type }}",
   "bridge": "{{ cni_network_bridge }}",
-  "isGateway": "{{ cni_network_is_gateway | lower }}",
-  "ipMasq": "{{ cni_network_ip_mask | lower }}",
+  "isGateway": {{ cni_network_is_gateway | bool | to_json }},
+  "ipMasq": {{ cni_network_ip_mask | bool | to_json }},
   "ipam": {
     "type": "{{ cni_network_ipam_type }}",
-    "subnet": "{{ cni_network_ipam_subnet }}"
+    "subnet": "{{ node_cidr }}"
+  },
+  "routes": {{ cni_network_routes | to_nice_json }},
+  "dns": {
+    "nameservers": {{ cni_network_nameservers | to_nice_json }},
+    "domain": "{{ cni_network_domain }}",
+    "search": {{ cni_network_search | to_nice_json }}
   }
 }
