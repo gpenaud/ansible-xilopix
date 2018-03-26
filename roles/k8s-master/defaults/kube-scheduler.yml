@@ -1,0 +1,30 @@
+#--------------------------------
+# Set scheduler default variables
+#--------------------------------
+package_url: "{{ kube_master_release_url }}/kube-scheduler"
+binary_path: "{{ kube_master_binary_path }}"
+conf_path: "{{ kube_master_conf_path }}"
+leader_elect: yes
+verbosity: 2
+
+# Kubeconfig for scheduler
+configuration:
+  apiVersion: v1
+  kind: Config
+  users:
+  - name: kubernetes
+    user:
+      client-certificate: "{{ kube_master_tls_cert_file }}"
+      client-key: "{{ kube_master_tls_key_file }}"
+      token: hbgith7aWi1aegheifeRhdaiLahVie3z
+  clusters:
+  - name: kubernetes
+    cluster:
+      certificate-authority: "{{ kube_master_ca_cert_file }}"
+      server: http://master0.k8s.lan:8080
+  contexts:
+  - context:
+      cluster: kubernetes
+      user: scheduler
+    name: scheduler
+  current-context: scheduler

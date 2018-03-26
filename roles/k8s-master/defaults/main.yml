@@ -1,139 +1,14 @@
----
-
 #-----------------------------------
 # Common kubernetes master variables
 #-----------------------------------
-kube_package_version: 1.9.6
-kube_release_url: "https://storage.googleapis.com/kubernetes-release/release/v{{ kube_package_version }}/bin/linux/amd64"
-
-kube_api_server_package_url: "{{ kube_release_url }}/kube-apiserver"
-kube_controller_manager_package_url: "{{ kube_release_url }}/kube-controller-manager"
-kube_scheduler_package_url: "{{ kube_release_url }}/kube-scheduler"
-kubectl_package_url: "{{ kube_release_url }}/kubectl"
-
+kube_master_package_version: 1.9.6
+kube_master_release_url: "https://storage.googleapis.com/kubernetes-release/release/v{{ kube_master_package_version }}/bin/linux/amd64"
+kube_master_kubectl_package_url: "{{ kube_master_release_url }}/kubectl"
 kube_master_binary_path: /usr/local/bin
+kube_master_conf_path: /etc/kubernetes
 kube_master_data_dir: /var/lib/kubernetes
 kube_master_certs_path: "{{ kube_master_data_dir }}/certs"
 kube_master_kubeconfig_path: "{{ kube_master_data_dir }}"
-kube_apiserver_service_force_restart: no
-
-kube_tokens:
-  - user: admin
-    group: admin
-    token: prA5ahie3ohtoo4boogvre6quipheaTh
-
-  - user: gpenaud
-    group: gpenaud
-    token: FWiephivof8onershoong1thee8tosoj
-
-  - user: kubelet
-    group: kubelet
-    token: hbgith7aWi1aegheifeRhdaiLahVie3z
-
 kube_master_tls_cert_file: "{{ kube_master_certs_path }}/kubernetes.pem"
 kube_master_tls_key_file: "{{ kube_master_certs_path }}/kubernetes-key.pem"
 kube_master_ca_cert_file: "{{ kube_master_certs_path }}/ca.pem"
-
-#----------------------------------
-# Set API server defaults variables
-#----------------------------------
-kube_apiserver_bind_address: 0.0.0.0
-kube_apiserver_insecure_bind_address: 127.0.0.1
-kube_apiserver_binary_path: "{{ kube_master_binary_path }}"
-kube_apiserver_data_dir: "{{ kube_master_data_dir }}"
-
-kube_apiserver_admission_control:
-  - NamespaceLifecycle
-  - LimitRanger
-  - SecurityContextDeny
-  - ServiceAccount
-  - ResourceQuota
-
-kube_apiserver_allow_privilege: yes
-kube_apiserver_count: 3
-kube_apiserver_authorization_mode: ABAC
-kube_apiserver_authorization_policy_file: /var/lib/kubernetes/authorization-policy.jsonl
-kube_apiserver_enable_swagger_ui: yes
-kube_apiserver_tls_private_key_file: "{{ kube_apiserver_certs_path }}/kubernetes-key.pem"
-kube_apiserver_service_cluster_ip_range: 10.32.0.0/16
-kube_apiserver_service_node_port_range: "30000-32767"
-kube_apiserver_token_auth_file: /var/lib/kubernetes/token.csv
-kube_apiserver_verbosity: 2
-
-kube_apiserver_etcd_protocol: https
-kube_apiserver_etcd_client_port: 2379
-kube_apiserver_etcd_members:
-  - etcd0.lxc.lan
-  - etcd1.lxc.lan
-  - etcd2.lxc.lan
-kube_apiserver_etcd_servers: |
-  {% for member in kube_apiserver_etcd_members -%}
-  {{ kube_apiserver_etcd_protocol }}://{{ member }}:{{ kube_apiserver_etcd_client_port }},
-  {%- endfor %}
-
-#-----------------------------------------
-# Set controller-manager default variables
-#-----------------------------------------
-kube_controller_manager_service_force_restart: no
-kube_controller_manager_binary_path: "{{ kube_master_binary_path }}"
-kube_controller_manager_data_dir: "{{ kube_master_data_dir }}"
-kube_controller_manager_allocate_node_cidrs: yes
-kube_controller_manager_cluster_cidr: 10.200.0.0/16
-kube_controller_manager_cluster_name: kubernetes
-kube_controller_manager_master: http://master0.k8s.lan:8080
-kube_controller_manager_leader_elect: yes
-kube_controller_manager_service_cluster_ip_range: 10.32.0.0/16
-kube_controller_manager_verbosity: 2
-
-# Kubeconfig for controller-manager
-kube_controller_manager_configuration:
-  apiVersion: v1
-  kind: Config
-  users:
-  - name: kubernetes
-    user:
-      client-certificate: "{{ kube_master_tls_cert_file }}"
-      client-key: "{{ kube_master_tls_key_file }}"
-      token: hbgith7aWi1aegheifeRhdaiLahVie3z
-  clusters:
-  - name: kubernetes
-    cluster:
-      certificate-authority: "{{ kube_master_ca_cert_file }}"
-      # server: "{{ kube_controller_manager_master }}"
-  contexts:
-  - context:
-      cluster: kubernetes
-      user: controller-manager
-    name: controller-manager
-  current-context: controller-manager
-
-#--------------------------------
-# Set scheduler default variables
-#--------------------------------
-kube_controller_manager_service_force_restart: no
-kube_scheduler_binary_path: "{{ kube_master_binary_path }}"
-kube_scheduler_leader_elect: yes
-kube_scheduler_verbosity: 2
-
-# Kubeconfig for scheduler
-kube_scheduler_configuration:
-  apiVersion: v1
-  kind: Config
-  users:
-  - name: kubernetes
-    user:
-      client-certificate: "{{ kube_master_tls_cert_file }}"
-      client-key: "{{ kube_master_tls_key_file }}"
-      token: hbgith7aWi1aegheifeRhdaiLahVie3z
-  clusters:
-  - name: kubernetes
-    cluster:
-      certificate-authority: "{{ kube_master_ca_cert_file }}"
-      server: http://master0.k8s.lan:8080
-  contexts:
-  - context:
-      cluster: kubernetes
-      user: scheduler
-    name: scheduler
-  current-context: scheduler
-

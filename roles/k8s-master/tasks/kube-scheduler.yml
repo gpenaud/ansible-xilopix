@@ -1,44 +1,58 @@
 ---
 
-- name: install - create mandatory directories
+- name: scheduler / install - create mandatory directories
   file:
     state: directory
     path: "{{ directory }}"
   with_items:
-    - "{{ kube_scheduler_binary_path }}"
+    - "{{ kube_scheduler.binary_path }}"
+    - "{{ kube_apiserver.conf_path }}"
   loop_control:
     loop_var: directory
   become: yes
 
-- name: install - download kube-scheduler binary
+- name: scheduler / install - download kube-scheduler binary
   get_url:
-    url: "{{ kube_scheduler_package_url }}"
-    dest: "{{ kube_scheduler_binary_path }}/kube-scheduler"
+    url: "{{ kube_scheduler.package_url }}"
+    dest: "{{ kube_scheduler.binary_path }}/kube-scheduler"
     mode: 0755
   become: yes
 
-- name: configure - copy kubeconfig configuration for scheduler
+- name: scheduler / configure - copy kubeconfig configuration for scheduler
   copy:
-    content: "{{ kube_scheduler_configuration | to_nice_yaml }}"
+    content: "{{ kube_scheduler.configuration | to_nice_yaml }}"
     dest: "{{ kube_master_kubeconfig_path }}/kubeconfig-scheduler"
   become: yes
 
-- name: configure - define systemd service for etcd
+- name: scheduler / configure - define systemd environment file for scheduler
   template:
-    src: templates/kube-scheduler.service.j2
+    src: "templates/configuration/{{ file }}.j2"
+    dest: "/etc/kubernetes/{{ file }}"
+  notify:
+    - restart kube-scheduler
+  with_items:
+    - master
+    - scheduler
+  loop_control:
+    loop_var: file
+  become: yes
+
+- name: scheduler / configure - define systemd service for etcd
+  template:
+    src: templates/systemd/kube-scheduler.service.j2
     dest: /etc/systemd/system/kube-scheduler.service
   notify:
     - restart kube-scheduler
   become: yes
 
-- name: enable kube-scheduler service
+- name: scheduler - enable kube-scheduler service
   service:
     name: kube-scheduler
     state: started
     enabled: yes
   become: yes
 
-- name: restart kube-scheduler on condition
+- name: scheduler - restart kube-scheduler on condition
   command: /bin/true
   notify: restart kube-scheduler
-  when: kube_scheduler_service_force_restart
+  when: kube_scheduler.service_force_restart

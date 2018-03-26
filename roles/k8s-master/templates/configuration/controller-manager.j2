@@ -1,0 +1,16 @@
+# ------------------------------------
+# kubernetes controller-manager config
+# ------------------------------------
+
+KUBE_CM_ALLOCATE_NODE_CIDRS="--allocate-node-cidrs={{ kube_controller_manager.allocate_node_cidrs | lower }}"
+KUBE_CM_CLUSTER_NAME="--cluster-name={{ kube_controller_manager.cluster_name }}"
+KUBE_CM_CLUSTER_CIDR="--cluster-cidr={{ kube_controller_manager.cluster_cidr }}"
+KUBE_CM_MASTER="--master={{ kube_controller_manager.master }}"
+KUBE_CM_LEADER_ELECT="--leader-elect={{ kube_controller_manager.leader_elect | lower }}"
+KUBE_CM_SERVICE_CLUSTER_IP_RANGE="--service-cluster-ip-range={{ kube_controller_manager.service_cluster_ip_range }}"
+KUBE_CM_SERVICE_ACCOUNT_PRIVATE_KEY_FILE="--service-account-private-key-file={{ kube_master_tls_key_file }}"
+KUBE_CM_ROOT_CA_FILE="--root-ca-file={{ kube_master_ca_cert_file }}"
+KUBE_CM_KUBECONFIG="--kubeconfig={{ kube_master_kubeconfig_path }}/kubeconfig-controller-manager"
+
+# Add your own!
+KUBE_CM_ARGS=""
