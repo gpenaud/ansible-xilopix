@@ -10,6 +10,8 @@ IMAGE_LIBVIRT = 'libvirt-base'
 LXC_NODES = {
   'master0' => '00:12:41:77:f9:20',
   'master1' => '00:12:41:77:f9:21',
+  # 'worker0' => '00:12:41:77:f9:30',
+  # 'worker1' => '00:12:41:77:f9:31',
 }
 
 KVM_NODES = {
@@ -49,8 +51,8 @@ Vagrant.configure(CONFIGURATION_VERSION) do |config|
         kvm_node.vm.synced_folder './', '/vagrant', type: 'rsync'
         kvm_node.vm.provider :libvirt do |kvm|
           kvm.driver   = 'qemu'
-          kvm.cpus   = 1
-          kvm.memory = 1024
+          kvm.cpus   = 2
+          kvm.memory = 2048
           kvm.storage_pool_name = "ssd"
           kvm.mgmt_attach = false
         end
@@ -60,14 +62,6 @@ Vagrant.configure(CONFIGURATION_VERSION) do |config|
           :dev     => 'k8s-bridge',
           :type    => 'bridge'
       end
-
-      # config.vm.provision "ansible", run: "always" do |ansible|
-      #   ansible.playbook    = "#{ENV['ANSIBLE_PERSONAL_PATH']}/playbooks/vagrant-boxes/base/libvirt.yml"
-      #   ansible.config_file = ENV['ANSIBLE_PERSONAL_CONFIG']
-      #   ansible.groups = {
-      #     "vagrant-box" => KVM_NODES.keys
-      #   }
-      # end
     end
   end
 end

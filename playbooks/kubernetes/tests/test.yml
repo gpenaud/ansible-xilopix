@@ -26,29 +26,52 @@
   roles:
     - role: k8s-master
       vars:
-        kube_apiserver_service_force_restart: yes
-        kube_apiserver_certs_path: /var/lib/kubernetes/certs
-        kube_apiserver_etcd_members:
+        kube_master_certs_path: /var/lib/kubernetes/certs
+        kube_apiserver:
+          service_force_restart: yes
+          etcd_members:
           - master0.k8s.lan
-          - master1.k8s.lan
-        kube_controller_manager_service_force_restart: yes
-        kube_scheduler_service_force_restart: yes
+          # - master1.k8s.lan
+        kube_controller_manager:
+          service_force_restart: yes
+        kube_scheduler:
+          service_force_restart: yes
       tags:
         - k8s-master
 
-- name: deploy kubernetes components for masters
+- name: deploy kubernetes components for workers
   hosts: workers
   roles:
     - role: k8s-worker
       vars:
-        docker_storage_driver: overlay
-        kubelet_certs_path: /var/lib/kubernetes/certs
-        kubelet_service_force_restart: yes
-        kubelet_conf_main_cluster_server: https://master0.k8s.lan:6443
-        kubelet_api_servers:
-          - master0.k8s.lan
-          - master1.k8s.lan
-        kube_proxy_service_force_restart: yes
-        kube_proxy_master_host: https://master0.k8s.lan:6443
+        kube_worker_certs_path: /var/lib/kubernetes/certs
+        docker:
+          storage_driver: overlay
+        kubelet:
+          service_force_restart: yes
+          conf_main_cluster_server: https://master0.k8s.lan:6443
+          api_servers:
+            - master0.k8s.lan
+            # - master1.k8s.lan
+        kube_proxy:
+          service_force_restart: yes
+          master_host: https://master0.k8s.lan:6443
       tags:
         - k8s-worker
+
+- name: create kubernetes deployments for masters
+  hosts: masters
+  tasks:
+  - name: deploy kube dns
+    copy:
+      src: "{{ lookup('env', 'K8S_PERSONAL_PATH') }}/{{ item.namespace }}/{{ item.file }}.yml"
+      dest: "/tmp/{{ item.file }}.yml"
+    with_items:
+    - namespace: kube-system
+      file: flannel
+    - namespace: kube-system
+      file: dns
+    - namespace: default
+      file: nginx
+  tags:
+    - deployments
