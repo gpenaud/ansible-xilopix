@@ -23,6 +23,8 @@ deploy:
 	@ export VAGRANT_CWD=$(PLAYBOOK_TEST_PATH)
 	@ ansible-playbook -i $(INVENTORY) $(PLAYBOOK_TEST_PATH)/test.yml
 
+redeploy: build deploy
+
 validate:
 	@ export VAGRANT_CWD=$(PLAYBOOK_TEST_PATH)
 	@ ansible-playbook -i $(INVENTORY) $(PLAYBOOK_TEST_PATH)/test.yml --tags validate
