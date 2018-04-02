@@ -34,6 +34,7 @@ cfssl_clients_csr:
   cn: Kubernetes
   hosts:
     - 127.0.0.1
+    - 10.32.0.1
   key:
     algo: rsa
     size: 2048
