@@ -1,33 +1,58 @@
 ---
 
-- name: install - create mandatory directories
+- name: kube-proxy / install - create mandatory directories
   file:
     state: directory
     path: "{{ directory }}"
   with_items:
-    - "{{ kube_proxy_binary_path }}"
+    - "{{ kube_proxy.binary_path }}"
+    - "{{ kube_proxy.kubeconfig_path }}"
+    - "{{ kube_proxy.conf_path }}"
   loop_control:
     loop_var: directory
   become: yes
 
-- name: install - download kube-proxy binary
+- name: kube-proxy / install - download kube-proxy binary
   get_url:
-    url: "{{ kube_proxy_package_url }}"
-    dest: "{{ kube_proxy_binary_path }}/kube-proxy"
+    url: "{{ kube_proxy.package_url }}"
+    dest: "{{ kube_proxy.binary_path }}/kube-proxy"
     mode: 0755
   become: yes
 
-- name: configure - define systemd service for kube-proxy
+- name: kube-proxy / configure - copy kubeconfig configuration
+  copy:
+    content: "{{ kube_proxy.configuration | to_nice_yaml }}"
+    dest: "{{ kube_proxy.kubeconfig_path }}/kubeconfig"
+  become: yes
+
+- name: kube-proxy / configure - define systemd environment file for kube-proxy
   template:
-    src: templates/kube-proxy.service.j2
+    src: "templates/configuration/{{ file }}.j2"
+    dest: "/etc/kubernetes/{{ file }}"
+  notify:
+    - restart kube-proxy
+  with_items:
+    - worker
+    - kube-proxy
+  loop_control:
+    loop_var: file
+  become: yes
+
+- name: kube-proxy / configure - define systemd service for kube-proxy
+  template:
+    src: templates/systemd/kube-proxy.service.j2
     dest: /etc/systemd/system/kube-proxy.service
   notify:
     - restart kube-proxy
   become: yes
 
-- name: configure - enable kube-proxy service
+- name: kube-proxy / configure - enable kube-proxy service
   service:
     name: kube-proxy
     state: started
     enabled: yes
+  become: yes
+
+- name: kube-proxy / log - display cmd launched through systemd in file
+  shell: pgrep -a kube-proxy >/tmp/kube-proxy.cmd
   become: yes

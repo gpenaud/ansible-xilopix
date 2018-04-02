@@ -1,0 +1,21 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=http://docs.docker.io
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/worker
+EnvironmentFile=-/etc/kubernetes/docker
+User=root
+
+ExecStart={{ docker.binary_path }}/docker daemon \
+  $DOCKER_BRIDGE \
+  $DOCKER_IPTABLES \
+  $DOCKER_IP_MASQ \
+  $DOCKER_HOST \
+  $DOCKER_STORAGE_DRIVER \
+  $DOCKER_LOG_LEVEL
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

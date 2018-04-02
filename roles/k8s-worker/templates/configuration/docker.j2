@@ -1,0 +1,13 @@
+# ------------------------
+# kubernetes docker config
+# ------------------------
+
+DOCKER_BRIDGE="--bridge={{ docker.network_bridge }}"
+DOCKER_IPTABLES="--iptables={{ docker.iptables_enabled | lower }}"
+DOCKER_IP_MASQ="--ip-masq={{ docker.ipmasq_enabled | lower }}"
+DOCKER_HOST="--host={{ docker.host }}"
+DOCKER_STORAGE_DRIVER="--log-level={{ docker.log_level }}"
+DOCKER_LOG_LEVEL="--storage-driver={{ docker.storage_driver }}"
+
+# Add your own!
+DOCKER_ARGS=""

@@ -1,0 +1,10 @@
+# -----------------------
+# kubernetes proxy config
+# -----------------------
+
+KUBE_PROXY_MASTER="--master={{ kube_worker_api_server }}"
+KUBE_PROXY_KUBECONFIG="--kubeconfig={{ kube_proxy.kubeconfig_path }}/kubeconfig"
+KUBE_PROXY_PROXY_MODE="--proxy-mode={{ kube_proxy.proxy_mode }}"
+
+# Add your own!
+KUBE_PROXY_ARGS=""

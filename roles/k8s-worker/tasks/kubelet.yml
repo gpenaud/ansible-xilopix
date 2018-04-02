@@ -1,40 +1,65 @@
 ---
 
-- name: install - create mandatory directories
+# - name: kubelet -  set servers fact
+#   set_fact:
+#     kubelet_api_servers: |
+#       {% for server in kubelet.api_servers -%}
+#       {{ kubelet.protocol }}://{{ hostvars[server].ansible_default_ipv4.address }}:{{ kubelet.api_port }},
+#       {%- endfor %}
+
+- name: kubelet / install - create mandatory directories
   file:
     state: directory
     path: "{{ directory }}"
   with_items:
-    - "{{ kubelet_binary_path }}"
-    - "{{ kubelet_kubeconfig_path }}"
+    - "{{ kubelet.binary_path }}"
+    - "{{ kubelet.kubeconfig_path }}"
+    - "{{ kubelet.conf_path }}"
   loop_control:
     loop_var: directory
   become: yes
 
-- name: install - download kubelet binary
+- name: kubelet / install - download kubelet binary
   get_url:
-    url: "{{ kubelet_package_url }}"
-    dest: "{{ kubelet_binary_path }}/kubelet"
+    url: "{{ kubelet.package_url }}"
+    dest: "{{ kubelet.binary_path }}/kubelet"
     mode: 0755
   become: yes
 
-- name: configure - copy kubelet configuration
+- name: kubelet / configure - copy kubeconfig configuration
   copy:
-    content: "{{ kubelet_configuration | to_nice_yaml }}"
-    dest: "{{ kubelet_kubeconfig_path }}/kubeconfig"
+    content: "{{ kubelet.configuration | to_nice_yaml }}"
+    dest: "{{ kubelet.kubeconfig_path }}/kubeconfig"
   become: yes
 
-- name: configure - define systemd service for kubelet
+- name: kubelet / configure - define systemd environment file for kubelet
   template:
-    src: templates/kubelet.service.j2
+    src: "templates/configuration/{{ file }}.j2"
+    dest: "/etc/kubernetes/{{ file }}"
+  notify:
+    - restart kubelet
+  with_items:
+    - worker
+    - kubelet
+  loop_control:
+    loop_var: file
+  become: yes
+
+- name: kubelet / configure - define systemd service for kubelet
+  template:
+    src: templates/systemd/kubelet.service.j2
     dest: /etc/systemd/system/kubelet.service
   notify:
     - restart kubelet
   become: yes
 
-- name: enable kubelet service
+- name: kubelet - enable kubelet service
   service:
     name: kubelet
     state: started
     enabled: yes
+  become: yes
+
+- name: kubelet / log - display cmd launched through systemd in file
+  shell: pgrep -a kubelet >/tmp/kubelet.cmd
   become: yes

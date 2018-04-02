@@ -1,35 +1,54 @@
 ---
 
-- name: install - test docker binaries presence
+- name: docker / install - create mandatory directory
+  file:
+    state: directory
+    path: "{{ kubelet.conf_path }}"
+  become: yes
+
+- name: docker / install - test docker binaries presence
   stat:
-    path: "{{ docker_binary_path }}/docker"
+    path: "{{ docker.binary_path }}/docker"
   register: docker_binary
 
-- name: install - install docker binaries
+- name: docker / install - install docker binaries
   block:
-  - name: install - download and extract docker tarball
+  - name: docker / install - download and extract docker tarball
     unarchive:
-      src: "{{ docker_release_url }}"
-      dest: "{{ docker_src_temp_path }}"
+      src: "{{ docker.release_url }}/docker-{{ docker.version }}.tgz"
+      dest: "{{ docker.src_temp_path }}"
       remote_src: yes
 
-  - name: install - move docker binaries then clean /tmp
+  - name: docker / install - move docker binaries then clean /tmp
     shell: |
-      mv {{ docker_src_temp_path }}/docker/* /usr/local/bin
+      mv {{ docker.src_temp_path }}/docker/* /usr/local/bin
       chmod +x /usr/local/bin/docker*
       rm -rf /tmp/docker*
     become: yes
   when: not docker_binary.stat.exists
 
-- name: configure - define systemd service for docker
+- name: docker / configure - define systemd environment file for docker
   template:
-    src: templates/docker.service.j2
+    src: "templates/configuration/{{ file }}.j2"
+    dest: "/etc/kubernetes/{{ file }}"
+  notify:
+    - restart docker
+  with_items:
+    - worker
+    - docker
+  loop_control:
+    loop_var: file
+  become: yes
+
+- name: docker / configure - define systemd service for docker
+  template:
+    src: templates/systemd/docker.service.j2
     dest: /etc/systemd/system/docker.service
   notify:
     - restart docker
   become: yes
 
-- name: configure - enable docker service
+- name: docker / configure - enable docker service
   service:
     name: docker
     state: started

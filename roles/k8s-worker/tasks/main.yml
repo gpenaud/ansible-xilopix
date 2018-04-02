@@ -1,5 +1,40 @@
 ---
 
+- name: main - include common variables from default main file
+  include_vars:
+    file: ../defaults/main.yml
+  tags: always
+
+- name: main - include default variables
+  include_vars:
+    file: "../defaults/{{ item }}.yml"
+    name: "{{ item | regex_replace('-', '_') }}_default"
+  with_items:
+    - docker
+    - cni
+    - kubelet
+    - kube-proxy
+  tags: always
+
+- name: main - merge default variables with overriden ones
+  set_fact:
+    "{{ item.variable }}": "{{ item.default | combine(item.data) }}"
+  with_items:
+    - variable: docker
+      data: "{{ docker | default({}) }}"
+      default: "{{ docker_default | default({})}}"
+    - variable: cni
+      data: "{{ cni | default({})}}"
+      default: "{{ cni_default | default({})}}"
+    - variable: kubelet
+      data: "{{ kubelet | default({})}}"
+      default: "{{ kubelet_default | default({})}}"
+    - variable: kube_proxy
+      data: "{{ kube_proxy | default({})}}"
+      default: "{{ kube_proxy_default | default({})}}"
+  no_log: yes
+  tags: always
+
 - name: main - install docker
   include: docker.yml
   tags:
@@ -22,7 +57,7 @@
 
 - name: install - download kubectl binary
   get_url:
-    url: "{{ kubectl_package_url }}"
-    dest: "{{ kubelet_binary_path }}/kubectl"
+    url: "{{ kube_worker_kubectl_package_url }}"
+    dest: "{{ kube_worker_kubectl_binary_path }}/kubectl"
     mode: 0755
   become: yes

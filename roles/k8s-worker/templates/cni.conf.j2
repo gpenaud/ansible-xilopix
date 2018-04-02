@@ -1,18 +1,23 @@
 {
-  "cniVersion": "{{ cni_version }}",
-  "name": "{{ cni_network_name }}",
-  "type": "{{ cni_network_type }}",
-  "bridge": "{{ cni_network_bridge }}",
-  "isGateway": {{ cni_network_is_gateway | bool | to_json }},
-  "ipMasq": {{ cni_network_ip_mask | bool | to_json }},
+  "cniVersion": "{{ cni.version }}",
+  "name": "{{ cni.network_name }}",
+  "type": "{{ cni.network_type }}",
+  "bridge": "{{ cni.network_bridge }}",
+  "isGateway": {{ cni.network_is_gateway | bool | to_json }},
+  "ipMasq": {{ cni.network_ip_mask | bool | to_json }},
+  "mtu": {{ cni.network_mtu }},
+  "addIf": "{{ cni.network_add_if }}",
+  "hairpinMode": {{ cni.network_hairpin_mode | bool | to_json }},
   "ipam": {
-    "type": "{{ cni_network_ipam_type }}",
+    "type": "{{ cni.network_ipam_type }}",
     "subnet": "{{ node_cidr }}"
   },
-  "routes": {{ cni_network_routes | to_nice_json }},
+  "routes": {{ cni.network_routes | to_nice_json }},
   "dns": {
-    "nameservers": {{ cni_network_nameservers | to_nice_json }},
-    "domain": "{{ cni_network_domain }}",
-    "search": {{ cni_network_search | to_nice_json }}
+    "nameservers": {{ cni.network_nameservers | to_nice_json }},
+    "domain": "{{ cni.network_domain }}",
+    "search": {{ cni.network_search | to_nice_json }}
   }
 }
+
+

@@ -1,0 +1,17 @@
+# -------------------------
+# kubernetes kubelet config
+# -------------------------
+
+KUBELET_CLOUD_PROVIDER="--cloud-provider={{ kubelet.cloud_provider }}"
+KUBELET_CLUSTER_DNS="--cluster-dns={{ kubelet.cluster_dns }}"
+KUBELET_CLUSTER_DOMAIN="--cluster-domain={{ kubelet.cluster_domain }}"
+KUBELET_CONTAINER_RUNTIME="--container-runtime={{ kubelet.container_runtime }}"
+KUBELET_DOCKER="--docker={{ kubelet.docker }}"
+KUBELET_NETWORK_PLUGIN="--network-plugin={{ kubelet.network_plugin }}"
+KUBELET_KUBECONFIG="--kubeconfig={{ kubelet.kubeconfig_path }}/kubeconfig"
+KUBELET_SERIALIZE_IMAGE_PULLS="--serialize-image-pulls={{ kubelet.serialize_image_pulls | lower }}"
+KUBELET_TLS_CERT_FILE="--tls-cert-file={{ kube_worker_tls_cert_file }}"
+KUBELET_TLS_PRIVATE_KEY_FILE="--tls-private-key-file={{ kube_worker_tls_private_key_file }}"
+
+# Add your own!
+KUBELET_ARGS=""
