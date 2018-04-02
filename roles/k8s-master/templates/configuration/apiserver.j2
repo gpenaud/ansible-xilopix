@@ -4,6 +4,7 @@
 
 KUBE_API_BIND_ADDRESS="--bind-address={{ kube_apiserver.bind_address }}"
 KUBE_API_INSECURE_BIND_ADDRESS="--insecure-bind-address={{ kube_apiserver.insecure_bind_address }}"
+KUBE_API_ADMISSION_CONTROL="--admission-control={{ kube_apiserver.admission_control | join(',') }}"
 KUBE_API_ADVERTISE_ADDRESS="--advertise-address={{ ansible_default_ipv4.address }}"
 KUBE_API_ALLOW_PRIVILEGED="--allow-privileged={{ kube_apiserver.allow_privilege | lower }}"
 KUBE_API_APISERVER_COUNT="--apiserver-count={{ kube_apiserver.count }}"

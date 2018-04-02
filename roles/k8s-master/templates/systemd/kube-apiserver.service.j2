@@ -12,6 +12,7 @@ User=root
 ExecStart={{ kube_apiserver.binary_path }}/kube-apiserver \
   $KUBE_API_BIND_ADDRESS \
   $KUBE_API_INSECURE_BIND_ADDRESS \
+  $KUBE_API_ADMISSION_CONTROL \
   $KUBE_API_ADVERTISE_ADDRESS \
   $KUBE_API_ALLOW_PRIVILEGED \
   $KUBE_API_APISERVER_COUNT \
@@ -31,7 +32,7 @@ ExecStart={{ kube_apiserver.binary_path }}/kube-apiserver \
   $KUBE_API_ARGS
 
 Restart=on-failure
-Type=notify
+RestartSec=5
 LimitNOFILE=65536
 
 [Install]

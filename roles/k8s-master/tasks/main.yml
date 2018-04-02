@@ -1,6 +1,5 @@
 ---
 
-
 - name: main - include common variables from default main file
   include_vars:
     file: ../defaults/main.yml
