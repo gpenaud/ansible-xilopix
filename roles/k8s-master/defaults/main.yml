@@ -7,6 +7,7 @@ kube_master_kubectl_package_url: "{{ kube_master_release_url }}/kubectl"
 kube_master_binary_path: /usr/local/bin
 kube_master_conf_path: /etc/kubernetes
 kube_master_data_dir: /var/lib/kubernetes
+kube_master_ressources_path: "{{ kube_master_data_dir }}/ressources"
 kube_master_certs_path: "{{ kube_master_data_dir }}/certs"
 kube_master_kubeconfig_path: "{{ kube_master_data_dir }}"
 kube_master_tls_cert_file: "{{ kube_master_certs_path }}/kubernetes.pem"

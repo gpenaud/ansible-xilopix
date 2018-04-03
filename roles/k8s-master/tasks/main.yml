@@ -63,3 +63,26 @@
   include: kube-scheduler.yml
   tags:
     - kube-scheduler
+
+- name: main - copy kubernetes ressources into masters
+  block:
+  - file:
+      path: "{{ kube_master_ressources_path }}"
+      state: directory
+
+  - file:
+      path: "{{ kube_master_ressources_path }}/{{ item.path }}"
+      state: directory
+      mode: "{{ item.mode }}"
+    with_filetree: "{{ lookup('env', 'K8S_PERSONAL_PATH') }}/ressources/"
+    when: item.state == "directory"
+
+  - template:
+      src: "{{ item.src }}"
+      dest: "{{ kube_master_ressources_path }}/{{ item.path }}"
+      mode: "{{ item.mode }}"
+    with_filetree: "{{ lookup('env', 'K8S_PERSONAL_PATH') }}/ressources/"
+    when: item.state == "file"
+  become: yes
+  tags:
+    - ressources
