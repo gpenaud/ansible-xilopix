@@ -52,7 +52,3 @@
     state: started
     enabled: yes
   become: yes
-
-- name: kube-proxy / log - display cmd launched through systemd in file
-  shell: pgrep -a kube-proxy >/tmp/kube-proxy.cmd
-  become: yes

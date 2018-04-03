@@ -2,7 +2,6 @@
 # kubernetes docker config
 # ------------------------
 
-DOCKER_BRIDGE="--bridge={{ docker.network_bridge }}"
 DOCKER_IPTABLES="--iptables={{ docker.iptables_enabled | lower }}"
 DOCKER_IP_MASQ="--ip-masq={{ docker.ipmasq_enabled | lower }}"
 DOCKER_HOST="--host={{ docker.host }}"

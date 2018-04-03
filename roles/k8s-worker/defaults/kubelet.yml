@@ -17,6 +17,7 @@ network_plugin: cni
 kubeconfig_path: /var/lib/kubelet
 reconcile_cidr: yes
 serialize_image_pulls: no
+fail_swap_on: yes
 verbosity: 2
 
 # Kubeconfig for kubelet

@@ -59,7 +59,3 @@
     state: started
     enabled: yes
   become: yes
-
-- name: kubelet / log - display cmd launched through systemd in file
-  shell: pgrep -a kubelet >/tmp/kubelet.cmd
-  become: yes

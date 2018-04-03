@@ -8,7 +8,6 @@ binary_path: /usr/local/bin
 conf_path: /etc/kubernetes
 src_temp_path: /tmp
 
-network_bridge: cbr0
 iptables_enabled: no
 ipmasq_enabled: no
 host: unix:///var/run/docker.sock

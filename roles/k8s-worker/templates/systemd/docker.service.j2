@@ -8,7 +8,6 @@ EnvironmentFile=-/etc/kubernetes/docker
 User=root
 
 ExecStart={{ docker.binary_path }}/docker daemon \
-  $DOCKER_BRIDGE \
   $DOCKER_IPTABLES \
   $DOCKER_IP_MASQ \
   $DOCKER_HOST \

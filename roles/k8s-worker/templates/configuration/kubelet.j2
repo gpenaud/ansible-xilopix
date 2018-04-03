@@ -12,6 +12,7 @@ KUBELET_KUBECONFIG="--kubeconfig={{ kubelet.kubeconfig_path }}/kubeconfig"
 KUBELET_SERIALIZE_IMAGE_PULLS="--serialize-image-pulls={{ kubelet.serialize_image_pulls | lower }}"
 KUBELET_TLS_CERT_FILE="--tls-cert-file={{ kube_worker_tls_cert_file }}"
 KUBELET_TLS_PRIVATE_KEY_FILE="--tls-private-key-file={{ kube_worker_tls_private_key_file }}"
+KUBELET_FAIL_SWAP_ON="--fail-swap-on={{ kubelet.fail_swap_on | lower }}"
 
 # Add your own!
 KUBELET_ARGS=""
