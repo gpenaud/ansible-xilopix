@@ -19,6 +19,10 @@ build:
 	@ vagrant destroy -f
 	@ vagrant up
 
+build-only:
+	@ export VAGRANT_CWD=$(PLAYBOOK_TEST_PATH)
+	@ vagrant up
+
 deploy:
 	@ export VAGRANT_CWD=$(PLAYBOOK_TEST_PATH)
 	@ ansible-playbook -i $(INVENTORY) $(PLAYBOOK_TEST_PATH)/test.yml
