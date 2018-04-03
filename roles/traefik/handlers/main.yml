@@ -1,0 +1,8 @@
+---
+
+- name: restart traefik
+  systemd:
+    name: traefik
+    daemon_reload: yes
+    state: restarted
+  become: yes

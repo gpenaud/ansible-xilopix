@@ -1,0 +1,22 @@
+
+# global parameters
+traefik_version: 1.1.2
+traefik_package_url: "https://github.com/containous/traefik/releases/download/v{{ traefik_version }}/traefik_linux-amd64"
+traefik_binary_path: /usr/local/bin
+traefik_conf_path: /etc/traefik
+traefik_data_path: /var/lib/kubernetes
+traefik_run_directory: /var/run/secrets/kubernetes.io/serviceaccount
+traefik_use_tls: no
+traefik_certs_path: "{{ traefik_data_path }}/certs"
+traefik_tls_cert_file: "{{ traefik_certs_path }}/ca.pem"
+
+# web part
+traefik_web_address: ":8080"
+traefik_web_readonly: yes
+
+# kubernetes provider part
+traefik_kubernetes_endpoint: https://master0.k8s.lan:6443
+traefik_kubernetes_user_token: ""
+traefik_kubernetes_namespaces:
+  - default
+  - kube-system

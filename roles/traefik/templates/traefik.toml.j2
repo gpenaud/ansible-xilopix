@@ -1,0 +1,7 @@
+[web]
+address = "{{ traefik_web_address }}"
+ReadOnly = {{ traefik_web_readonly | lower }}
+
+[kubernetes]
+endpoint = "{{ traefik_kubernetes_endpoint }}"
+namespaces = {{ traefik_kubernetes_namespaces | to_nice_json }}

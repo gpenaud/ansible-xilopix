@@ -1,0 +1,53 @@
+---
+
+- name: traefik / install - create mandatory directories
+  file:
+    state: directory
+    path: "{{ directory }}"
+  with_items:
+    - "{{ traefik_data_path }}"
+    - "{{ traefik_run_directory }}"
+    - "{{ traefik_certs_path }}"
+    - "{{ traefik_conf_path }}"
+  loop_control:
+    loop_var: directory
+  become: yes
+
+- name: traefik / install - copy cacert
+  copy:
+    src: "{{ traefik_tls_cert_file }}"
+    dest: "{{ traefik_run_directory }}/ca.crt"
+    remote_src: yes
+    mode: 0644
+  become: yes
+
+- name: traefik / install - copy token
+  copy:
+    content: "{{ traefik_kubernetes_user_token }}"
+    dest: "{{ traefik_run_directory }}/token"
+    mode: 0644
+  become: yes
+
+- name: traefik / install - download traefik binary
+  get_url:
+    url: "{{ traefik_package_url }}"
+    dest: "{{ traefik_binary_path }}/traefik"
+    mode: 0755
+  become: yes
+
+- name: traefik / configure - copy traefik configuration file
+  template:
+    src: templates/traefik.toml.j2
+    dest: "{{ traefik_conf_path }}/traefik.toml"
+  notify:
+    - restart traefik
+  become: yes
+
+- name: traefik / configure - define systemd service for traefik
+  template:
+    src: templates/traefik.service.j2
+    dest: /etc/systemd/system/traefik.service
+  notify:
+    - restart traefik
+  become: yes
+

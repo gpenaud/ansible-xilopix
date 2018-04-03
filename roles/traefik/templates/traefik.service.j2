@@ -1,0 +1,13 @@
+[Unit]
+Description=Traefik reverse-proxy server
+Documentation=https://docs.traefik.io/
+After=network.target
+
+[Service]
+User=root
+ExecStart={{ traefik_binary_path }}/traefik -c {{ traefik_conf_path }}/traefik.toml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
