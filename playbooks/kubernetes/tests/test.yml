@@ -45,10 +45,11 @@
     - role: k8s-worker
       vars:
         kube_worker_certs_path: /var/lib/kubernetes/certs
-        docker:
-          storage_driver: overlay
+        # docker:
+        #   storage_driver: overlay
         kubelet:
           service_force_restart: yes
+          fail_swap_on: no
           conf_main_cluster_server: https://master0.k8s.lan:6443
           api_servers:
             - master0.k8s.lan
@@ -59,19 +60,9 @@
       tags:
         - k8s-worker
 
-- name: create kubernetes deployments for masters
-  hosts: masters
-  tasks:
-  - name: deploy kube dns
-    copy:
-      src: "{{ lookup('env', 'K8S_PERSONAL_PATH') }}/{{ item.namespace }}/{{ item.file }}.yml"
-      dest: "/tmp/{{ item.file }}.yml"
-    with_items:
-    - namespace: kube-system
-      file: flannel
-    - namespace: kube-system
-      file: dns
-    - namespace: default
-      file: nginx
-  tags:
-    - deployments
+- name: deploy traefik proxies
+  hosts: traefik
+  roles:
+    - role: traefik
+      tags:
+        - traefik
