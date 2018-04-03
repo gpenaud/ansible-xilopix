@@ -1,10 +1,6 @@
 [cfssl]
 master0.k8s.lan
 worker0.k8s.lan
-proxy0.k8s.lan
-
-[traefik]
-proxy0.k8s.lan
 
 [etcd]
 master0.k8s.lan

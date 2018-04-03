@@ -1,0 +1,13 @@
+---
+
+- name: ressources - deploy system components to kubernetes cluster
+  block:
+  - name: ressources - deploy flannel to kubernetes cluster
+    shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/kube-system/flannel.yml
+  - name: ressources - deploy dns to kubernetes cluster
+    shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/kube-system/dns.yml
+  - name: ressources - deploy loadbalancer traefik to kubernetes cluster
+    shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/kube-system/traefik.yml
+  no_log: yes
+  ignore_errors: yes
+  delegate_to: "{{ groups['masters'] | first }}"

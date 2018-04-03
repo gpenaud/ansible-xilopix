@@ -60,9 +60,9 @@
       tags:
         - k8s-worker
 
-- name: deploy traefik proxies
-  hosts: traefik
-  roles:
-    - role: traefik
-      tags:
-        - traefik
+# - name: deploy traefik proxies
+#   hosts: traefik
+#   roles:
+#     - role: traefik
+#       tags:
+#         - traefik

@@ -38,7 +38,7 @@
 
   - name: execute cfssl certificate generation commands
     shell: |
-      bin/cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+      bin/cfssl gencert -initca ca-csr.json | bin/cfssljson -bare ca
       bin/cfssl gencert \
         -ca=ca.pem \
         -ca-key=ca-key.pem \

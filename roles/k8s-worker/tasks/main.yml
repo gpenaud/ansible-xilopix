@@ -55,9 +55,14 @@
   tags:
     - kube-proxy
 
-- name: install - download kubectl binary
+- name: main - download kubectl binary
   get_url:
     url: "{{ kube_worker_kubectl_package_url }}"
     dest: "{{ kube_worker_kubectl_binary_path }}/kubectl"
     mode: 0755
   become: yes
+
+- name: main - deploy kubernetes system ressources
+  include: ressources.yml
+  tags:
+    - ressources
