@@ -7,6 +7,12 @@
       vars:
         cfssl_force: yes
         cfssl_certs_path: /var/lib/kubernetes/certs
+        cfssl_clients_csr:
+          hosts:
+            - 127.0.0.1
+            - 10.32.0.1
+            - 10.240.0.254
+            - apiserver.k8s.lan
       tags:
         - cfssl
 
@@ -29,13 +35,35 @@
         kube_master_certs_path: /var/lib/kubernetes/certs
         kube_apiserver:
           service_force_restart: yes
-          etcd_members:
-          - master0.k8s.lan
-          # - master1.k8s.lan
+          etcd_members: "{{ groups['etcd'] }}"
         kube_controller_manager:
+          master: https://apiserver.k8s.lan:6443
           service_force_restart: yes
         kube_scheduler:
           service_force_restart: yes
+
+    - role: keepalived
+      vars:
+        keepalived_service_force_restart: yes
+        keepalived_instances:
+          master0:
+            state: master
+            priority: 254
+            interface: eth0
+            router_id: 1
+            virtual:
+              ip: 10.240.0.254/24
+              netmask: 10.240.0.255
+              interface: eth0
+          master1:
+            state: master
+            priority: 254
+            interface: eth0
+            router_id: 2
+            virtual:
+              ip: 10.240.0.254/24
+              netmask: 10.240.0.255
+              interface: eth0
       tags:
         - k8s-master
 
@@ -45,24 +73,55 @@
     - role: k8s-worker
       vars:
         kube_worker_certs_path: /var/lib/kubernetes/certs
+        kube_worker_api_server: https://apiserver.k8s.lan:6443
         # docker:
         #   storage_driver: overlay
         kubelet:
           service_force_restart: yes
           fail_swap_on: no
-          conf_main_cluster_server: https://master0.k8s.lan:6443
+          conf_main_cluster_server: https://apiserver.k8s.lan:6443
           api_servers:
-            - master0.k8s.lan
-            # - master1.k8s.lan
+            - apiserver.k8s.lan
         kube_proxy:
           service_force_restart: yes
-          master_host: https://master0.k8s.lan:6443
+          master_host: https://apiserver.k8s.lan:6443
       tags:
         - k8s-worker
 
-# - name: deploy traefik proxies
-#   hosts: traefik
-#   roles:
-#     - role: traefik
-#       tags:
-#         - traefik
+- name: deploy haproxy instances
+  hosts: proxies
+  roles:
+    - role: keepalived
+      vars:
+        keepalived_service_force_restart: yes
+        keepalived_instances:
+          proxy0:
+            state: master
+            priority: 254
+            interface: eth0
+            router_id: 1
+            nopreempt: yes
+            virtual:
+              ip: 10.240.0.253/24
+              netmask: 10.240.0.255
+              interface: eth0
+          proxy1:
+            state: master
+            priority: 254
+            interface: eth0
+            router_id: 2
+            nopreempt: yes
+            virtual:
+              ip: 10.240.0.253/24
+              netmask: 10.240.0.255
+              interface: eth0
+      tags:
+        - keepalived
+        - proxy
+
+    - role: haproxy
+      vars:
+        haproxy_service_force_restart: yes
+      tags:
+        - haproxy
+        - proxy
