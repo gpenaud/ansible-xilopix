@@ -52,3 +52,8 @@
     state: started
     enabled: yes
   become: yes
+
+- name: kube-proxy - restart kube-proxy on condition
+  command: /bin/true
+  notify: restart kube-proxy
+  when: kube_proxy.service_force_restart

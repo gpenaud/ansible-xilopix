@@ -55,6 +55,10 @@
   tags:
     - kube-proxy
 
+- name: main - restarts ervices if needed
+  meta: flush_handlers
+  when: kubelet.service_force_restart or kube_proxy.service_force_restart or docker.service_force_restart
+
 - name: main - download kubectl binary
   get_url:
     url: "{{ kube_worker_kubectl_package_url }}"

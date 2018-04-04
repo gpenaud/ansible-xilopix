@@ -59,3 +59,8 @@
     state: started
     enabled: yes
   become: yes
+
+- name: kubelet - restart kubelet on condition
+  command: /bin/true
+  notify: restart kubelet
+  when: kubelet.service_force_restart

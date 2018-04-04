@@ -19,6 +19,7 @@ reconcile_cidr: yes
 serialize_image_pulls: no
 fail_swap_on: yes
 verbosity: 2
+service_force_restart: no
 
 # Kubeconfig for kubelet
 configuration:

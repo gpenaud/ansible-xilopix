@@ -54,3 +54,8 @@
     state: started
     enabled: yes
   become: yes
+
+- name: docker - restart docker on condition
+  command: /bin/true
+  notify: restart docker
+  when: docker.service_force_restart
