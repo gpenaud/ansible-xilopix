@@ -1,0 +1,17 @@
+#jinja2: lstrip_blocks: True
+# {{ ansible_managed }}
+{% for instance, data in keepalived_instances.iteritems() %}
+vrrp_instance {{ instance }} {
+  state {{ data.state | upper }}
+  interface {{ data.interface }}
+  virtual_router_id {{ data.router_id }}
+  priority {{ data.priority }}
+  {% if data.nopreempt %}
+  nopreempt
+  {% endif %}
+  virtual_ipaddress {
+    {{ data.virtual.ip }} brd {{ data.virtual.netmask }} dev {{ data.virtual.interface }} scope global
+  }
+}
+
+{% endfor %}

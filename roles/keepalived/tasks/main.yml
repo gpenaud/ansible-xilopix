@@ -1,0 +1,28 @@
+---
+
+- name: keepalived - install keepalived package
+  apt:
+    state: present
+    name: keepalived
+  become: yes
+  tags:
+    - keepalived
+
+- name: keepalived - set configuration file
+  template:
+    src:  keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart keepalived
+  become: yes
+  tags:
+    - keepalived
+
+- name: keepalived - restart keepalived on condition
+  command: /bin/true
+  notify: restart keepalived
+  when: keepalived_service_force_restart
+  tags:
+    - keepalived
