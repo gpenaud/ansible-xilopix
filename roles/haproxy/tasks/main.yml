@@ -1,0 +1,38 @@
+---
+
+- name: haproxy - install haproxy package
+  apt:
+    state: present
+    name: haproxy
+  become: yes
+  tags:
+    - haproxy
+
+- name: haproxy - set configuration file
+  template:
+    src:  haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart haproxy
+  become: yes
+  tags:
+    - haproxy
+
+- name: haproxy - enable haproxy to work even if vip is down
+  sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+  become: yes
+  tags: haproxy
+
+- name: haproxy - restart haproxy on condition
+  command: /bin/true
+  notify: restart haproxy
+  when: haproxy_service_force_restart
+  tags:
+    - haproxy

@@ -1,0 +1,73 @@
+#jinja2: lstrip_blocks: True
+# {{ ansible_managed }}
+
+global
+  pidfile /var/run/haproxy.pid
+  log 127.0.0.1 local0 info
+  ulimit-n        65536
+
+defaults
+  mode http
+
+  timeout client      600000   # maximum inactivity time on the client side
+  timeout server      600000   # maximum inactivity time on the server side
+  timeout connect     8000     # maximum time to wait for a connection attempt to a server to succeed
+
+  stats enable
+  stats auth		admin:password
+  stats uri		/monitor
+  stats refresh	5s
+  option httpchk	GET /status
+  retries		5
+  option redispatch
+  errorfile 503 /etc/haproxy/errors/503.http
+
+  balance roundrobin # each server is used in turns, according to assigned weight
+
+{% for name, data in haproxy_frontend.iteritems() %}
+frontend {{ name }}
+  {% for bind in data.bind %}
+  bind {{ bind }}
+  {% endfor %}
+  {% if 'mode' in data %}
+  mode {{ data.mode }}
+  {% endif %}
+  {% if 'options' in data %}
+  {% for option in data.options %}
+  option {{ option }}
+  {% endfor %}
+  {% endif %}
+  {% if 'acls' in data %}
+  {% for acl in data.acls %}
+  acl {{ acl.name }} {{ acl.type }} -i {{ acl.value }}
+  {% endfor %}
+  {% endif %}
+  {% if 'use_backends' in data %}
+  {% for backend in data.use_backends %}
+  use_backend {{ backend }}
+  {% endfor %}
+  {% endif %}
+  default_backend {{ data.default_backend }}
+
+{% endfor %}
+{% for name, data in haproxy_backend.iteritems() %}
+backend {{ name }}
+  {% if 'mode' in data %}
+  mode {{ data.mode }}
+  {% endif %}
+  {% if 'options' in data %}
+  {% for option in data.options %}
+  option {{ option }}
+  {% endfor %}
+  {% endif %}
+  {% if 'balance' in data %}
+  balance {{ data.balance }}
+  {% endif %}
+  {% if 'default_server' in data %}
+  default-server {{ data.default_server }}
+  {% endif %}
+  {% for server in data.servers %}
+  server {{ server }}
+  {% endfor %}
+
+{% endfor %}

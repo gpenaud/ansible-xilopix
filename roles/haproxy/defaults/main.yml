@@ -1,0 +1,53 @@
+---
+
+haproxy_service_force_restart: no
+haproxy_frontend:
+  traefik:
+    bind:
+      - 10.240.0.253:80
+    acls:
+      - name: host_is_dashboard
+        type: hdr(host)
+        value: dashboard.k8s.lan
+    use_backends:
+      - traefik_ui if host_is_dashboard
+    default_backend: traefik
+
+  k8s_api:
+    bind:
+      - 10.240.0.253:6443
+    mode: http
+    options:
+      - httplog
+    default_backend: k8s_api
+
+haproxy_backend:
+  traefik_ui:
+    servers:
+      - k8s-traefik-ui-1 10.240.0.30:8080
+      - k8s-traefik-ui-2 10.240.0.31:8080
+    default_server: inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 250 maxqueue 256 weight 100
+    mode: http
+    options:
+      - httplog
+    balance: roundrobin
+
+  traefik:
+    servers:
+      - k8s-traefik-1 10.240.0.30:80
+      - k8s-traefik-2 10.240.0.31:80
+    default_server: inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 250 maxqueue 256 weight 100
+    mode: http
+    options:
+      - httplog
+    balance: roundrobin
+
+  k8s_api:
+    servers:
+      - k8s-api-1 10.240.0.20:6443 check
+      - k8s-api-2 10.240.0.21:6443 check
+    default_server: inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 250 maxqueue 256 weight 100
+    mode: http
+    options:
+      - httplog
+    balance: roundrobin
