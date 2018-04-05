@@ -1,12 +1,5 @@
 ---
 
-# - name: kubelet -  set servers fact
-#   set_fact:
-#     kubelet_api_servers: |
-#       {% for server in kubelet.api_servers -%}
-#       {{ kubelet.protocol }}://{{ hostvars[server].ansible_default_ipv4.address }}:{{ kubelet.api_port }},
-#       {%- endfor %}
-
 - name: kubelet / install - create mandatory directories
   file:
     state: directory
