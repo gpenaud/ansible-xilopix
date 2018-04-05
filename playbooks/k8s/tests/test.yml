@@ -74,8 +74,8 @@
       vars:
         kube_worker_certs_path: /var/lib/kubernetes/certs
         kube_worker_api_server: https://apiserver.k8s.lan:6443
-        # docker:
-        #   storage_driver: overlay
+        docker:
+          storage_driver: overlay
         kubelet:
           service_force_restart: yes
           fail_swap_on: no

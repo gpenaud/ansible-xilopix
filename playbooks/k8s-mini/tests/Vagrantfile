@@ -34,7 +34,7 @@ Vagrant.configure(CONFIGURATION_VERSION) do |config|
           lxc.customize 'network.link', 'k8s-bridge'
           lxc.customize 'network.hwaddr', node_mac_address
 
-          if node_name =~ /worker*/
+          if node_name =~ /node*/
             lxc.customize 'aa_profile', 'unconfined'
             lxc.customize 'mount.auto', 'proc:rw sys:rw cgroup:rw'
             lxc.customize 'cgroup.devices.allow', 'a'

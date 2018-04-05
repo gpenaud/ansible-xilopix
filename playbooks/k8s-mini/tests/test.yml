@@ -68,17 +68,17 @@
 #--------------------------------------
 # configure localhost kernel parameters
 # -------------------------------------
-- name: deploy kubernetes components for masters
-  hosts: localhost
-  tasks:
-    - name: main - increase mx map count for elasticsearch
-      sysctl:
-        name: vm.max_map_count
-        value: 262144
-        sysctl_set: yes
-        state: present
-        reload: yes
-  become: yes
+# - name: deploy kubernetes components for masters
+#   hosts: localhost
+#   tasks:
+#     - name: main - increase mx map count for elasticsearch
+#       sysctl:
+#         name: vm.max_map_count
+#         value: 262144
+#         sysctl_set: yes
+#         state: present
+#         reload: yes
+#       become: yes
 
 #-----------------------------
 # deploy kubernetes components
@@ -100,5 +100,6 @@
       ignore_errors: yes
       delegate_to: "{{ groups['masters'] | first }}"
       # when: create_ressources
+      become: yes
   tags:
     - ressources
