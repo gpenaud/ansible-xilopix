@@ -1,10 +1,5 @@
 ---
 
-- name: main - include common variables from default main file
-  include_vars:
-    file: ../defaults/main.yml
-  tags: always
-
 - name: main - include default variables
   include_vars:
     file: "../defaults/{{ item }}.yml"
@@ -55,7 +50,7 @@
   tags:
     - kube-proxy
 
-- name: main - restarts ervices if needed
+- name: main - restart services if needed
   meta: flush_handlers
   when: kubelet.service_force_restart or kube_proxy.service_force_restart or docker.service_force_restart
 
@@ -65,17 +60,3 @@
     dest: "{{ kube_worker_kubectl_binary_path }}/kubectl"
     mode: 0755
   become: yes
-
-- name: main - increase mx map count for elasticsearch
-  sysctl:
-    name: vm.max_map_count
-    value: 262144
-    sysctl_set: yes
-    state: present
-    reload: yes
-  become: yes
-
-- name: main - deploy kubernetes system ressources
-  include: ressources.yml
-  tags:
-    - ressources

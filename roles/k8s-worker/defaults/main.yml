@@ -18,5 +18,5 @@ kube_worker_tls_ca_file: "{{ kube_worker_certs_path }}/ca.pem"
 # Kubelet variables for worker cluster configuration
 #---------------------------------------------------
 kubeconfig_name: kubernetes
-kubeconfig_api_server: https://master0.k8s.lan:6443
+kubeconfig_api_server: "{{ kube_worker_api_server }}"
 kubeconfig_user_token: hbgith7aWi1aegheifeRhdaiLahVie3z

@@ -9,7 +9,7 @@ data_dir: "{{ kube_master_data_dir }}"
 allocate_node_cidrs: yes
 cluster_cidr: 10.200.0.0/16
 cluster_name: kubernetes
-master: http://master0.k8s.lan:8080
+master: "{{ kube_master_api_server }}"
 leader_elect: yes
 service_cluster_ip_range: 10.32.0.0/16
 service_force_restart: no
@@ -29,7 +29,7 @@ configuration:
   - name: kubernetes
     cluster:
       certificate-authority: "{{ kube_master_ca_cert_file }}"
-      # server: "{{ master }}"
+      server: "{{ kube_master_api_server }}"
   contexts:
   - context:
       cluster: kubernetes
