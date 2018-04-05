@@ -33,11 +33,11 @@
     - role: k8s-master
       vars:
         kube_master_certs_path: /var/lib/kubernetes/certs
+        kube_master_api_server: https://apiserver.k8s.lan:6443
         kube_apiserver:
           service_force_restart: yes
           etcd_members: "{{ groups['etcd'] }}"
         kube_controller_manager:
-          master: https://apiserver.k8s.lan:6443
           service_force_restart: yes
         kube_scheduler:
           service_force_restart: yes
@@ -51,8 +51,8 @@
       vars:
         kube_worker_certs_path: /var/lib/kubernetes/certs
         kube_worker_api_server: https://apiserver.k8s.lan:6443
-        # docker:
-        #   storage_driver: overlay
+        docker:
+          storage_driver: overlay
         kubelet:
           service_force_restart: yes
           fail_swap_on: no
