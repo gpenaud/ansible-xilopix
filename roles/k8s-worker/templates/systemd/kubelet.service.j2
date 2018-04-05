@@ -22,6 +22,9 @@ ExecStart={{ kubelet.binary_path }}/kubelet \
   $KUBELET_FAIL_SWAP_ON \
   $KUBELET_TLS_CERT_FILE \
   $KUBELET_TLS_PRIVATE_KEY_FILE \
+  {% if inventory_hostname in groups['masters'] %}
+  $KUBELET_NODE_LABELS \
+  {% endif %}
   $KUBE_LOG_LEVEL \
   $KUBE_LOGTOSTDERR \
   $KUBELET_ARGS
