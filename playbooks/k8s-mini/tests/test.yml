@@ -1,0 +1,86 @@
+---
+
+- name: deploy cfssl certificates for both masters and workers kubernetes instances
+  hosts: cfssl
+  roles:
+    - role: cfssl
+      vars:
+        cfssl_force: yes
+        cfssl_certs_path: /var/lib/kubernetes/certs
+        cfssl_clients_csr:
+          hosts:
+            - 127.0.0.1
+            - 10.32.0.1
+            - 10.240.0.254
+            - apiserver.k8s.lan
+      tags:
+        - cfssl
+
+- name: deploy etcd cluster
+  hosts: etcd
+  roles:
+    - role: etcd
+      vars:
+        etcd_service_force_restart: yes
+        etcd_protocol: https
+        etcd_tls_certs_path: /var/lib/kubernetes/certs
+      tags:
+        - etcd
+
+- name: deploy kubernetes components for masters
+  hosts: masters
+  roles:
+    - role: k8s-master
+      vars:
+        kube_master_certs_path: /var/lib/kubernetes/certs
+        kube_apiserver:
+          service_force_restart: yes
+          etcd_members: "{{ groups['etcd'] }}"
+        kube_controller_manager:
+          master: https://apiserver.k8s.lan:6443
+          service_force_restart: yes
+        kube_scheduler:
+          service_force_restart: yes
+      tags:
+        - k8s-master
+
+- name: deploy kubernetes components for workers
+  hosts: workers
+  roles:
+    - role: k8s-worker
+      vars:
+        kube_worker_certs_path: /var/lib/kubernetes/certs
+        kube_worker_api_server: https://apiserver.k8s.lan:6443
+        # docker:
+        #   storage_driver: overlay
+        kubelet:
+          service_force_restart: yes
+          fail_swap_on: no
+          conf_main_cluster_server: https://apiserver.k8s.lan:6443
+          api_servers:
+            - apiserver.k8s.lan
+        kube_proxy:
+          service_force_restart: yes
+          master_host: https://apiserver.k8s.lan:6443
+      tags:
+        - k8s-worker
+
+- name: deploy kubernetes components for masters
+  hosts: masters
+  tasks:
+    - name: ressources - deploy system components to kubernetes cluster
+      block:
+      - name: ressources - deploy network to kubernetes cluster
+        shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/network.yml
+      - name: ressources - deploy dns to kubernetes cluster
+        shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/dns.yml
+      - name: ressources - deploy loadbalancer traefik to kubernetes cluster
+        shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/traefik.yml
+      - name: ressources - deploy dashboard to kubernetes cluster
+        shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/dashboard.yml
+      no_log: yes
+      ignore_errors: yes
+      delegate_to: "{{ groups['masters'] | first }}"
+      # when: create_ressources
+  tags:
+    - ressources

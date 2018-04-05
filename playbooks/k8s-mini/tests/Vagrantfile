@@ -1,0 +1,69 @@
+CONFIGURATION_VERSION = 2
+KVM_WORKER_NODES = {}
+
+# ------------------------------------------
+# Cluster configuration
+# ------------------------------------------
+
+IMAGE_LXC     = 'lxc-base'
+IMAGE_LIBVIRT = 'libvirt-base'
+
+LXC_NODES = {
+  'node1' => '00:12:41:77:f9:20',
+  'node2' => '00:12:41:77:f9:30',
+}
+
+# ------------------------------------------
+
+Vagrant.configure(CONFIGURATION_VERSION) do |config|
+  config.ssh.username         = ENV['ANSIBLE_PERSONAL_USER']
+  config.ssh.private_key_path = ENV['ANSIBLE_PERSONAL_KEYFILE']
+
+  config.vm.provision "shell", run: "always" do |shell|
+    shell.inline = 'sudo dhclient -v 2>/dev/null'
+  end
+
+  unless LXC_NODES.empty?
+    LXC_NODES.each do |node_name, node_mac_address|
+      config.vm.define node_name do |lxc_node|
+        lxc_node.vm.box = IMAGE_LXC
+        lxc_node.vm.hostname = node_name
+        lxc_node.vm.provider :lxc do |lxc|
+          lxc.container_name  = :machine
+          lxc.customize 'network.name', 'eth0'
+          lxc.customize 'network.link', 'k8s-bridge'
+          lxc.customize 'network.hwaddr', node_mac_address
+
+          if node_name =~ /worker*/
+            lxc.customize 'aa_profile', 'unconfined'
+            lxc.customize 'mount.auto', 'proc:rw sys:rw cgroup:rw'
+            lxc.customize 'cgroup.devices.allow', 'a'
+            lxc.customize 'cap.drop', ''
+          end
+        end
+      end
+    end
+  end
+
+  unless KVM_WORKER_NODES.empty?
+    KVM_WORKER_NODES.each do |node_name, node_mac_address|
+      config.vm.define node_name do |kvm_node|
+        kvm_node.vm.box = IMAGE_LIBVIRT
+        kvm_node.vm.hostname = node_name
+        kvm_node.vm.synced_folder './', '/vagrant', type: 'rsync'
+        kvm_node.vm.provider :libvirt do |kvm|
+          kvm.driver   = 'qemu'
+          kvm.cpus   = 2
+          kvm.memory = 2048
+          kvm.storage_pool_name = "ssd"
+          kvm.mgmt_attach = false
+        end
+
+        kvm_node.vm.network :public_network,
+          :mac      => node_mac_address,
+          :dev     => 'k8s-bridge',
+          :type    => 'bridge'
+      end
+    end
+  end
+end
