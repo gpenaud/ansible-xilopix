@@ -6,7 +6,7 @@ vrrp_instance {{ instance }} {
   interface {{ data.interface }}
   virtual_router_id {{ data.router_id }}
   priority {{ data.priority }}
-  {% if data.nopreempt %}
+  {% if 'nopreempt' in data %}
   nopreempt
   {% endif %}
   virtual_ipaddress {
