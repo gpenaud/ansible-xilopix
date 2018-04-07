@@ -13,6 +13,8 @@
             - 10.32.0.1
             - 10.240.0.254
             - apiserver.k8s.lan
+            - docker.k8s.lan
+
       tags:
         - cfssl
 
