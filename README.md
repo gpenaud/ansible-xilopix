@@ -1,4 +1,13 @@
-## Example hostvars variables
+### Why this repository ?
+A simple way to centralize my work on ansible kubernetes poc, and all others deployment processes I made with ansible
+
+### Projects
+- kubernetes mini poc (2 nodes - 1 master/worker, 1 worker)
+- kubernetes production/simulation poc (6 nodes - 2 haproxies, 2 masters, 2 workers)
+- cfssl certificates management
+- etcd
+
+### Example hostvars variables
 Here are useful ansible facts variables - cool, isn't it ?
 
 ```
