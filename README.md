@@ -1,3 +1,7 @@
+## Example hostvars variables
+Here are useful ansible facts variables - cool, isn't it ?
+
+```
 # Example hostvars variables
 inventory_hostname:         master0.k8s.lan
 inventory_hostname_short:   master0
@@ -58,3 +62,4 @@ groups: {
     "worker1.k8s.lan"
   ]
 }
+```
