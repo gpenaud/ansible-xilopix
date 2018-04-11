@@ -1,0 +1,29 @@
+---
+cfssl:
+  hosts:
+    master0.k8s.lan:
+    master1.k8s.lan:
+    worker0.k8s.lan:
+    worker1.k8s.lan:
+
+etcd:
+  hosts:
+    master0.k8s.lan:
+    master1.k8s.lan:
+
+masters:
+  hosts:
+    master0.k8s.lan:
+    master1.k8s.lan:
+
+workers:
+  hosts:
+    node1.k8s.lan:
+      node_cidr: 10.200.0.0/24
+    node2.k8s.lan:
+      node_cidr: 10.200.1.0/24
+
+proxies:
+  hosts:
+    proxy0.k8s.lan:
+    proxy1.k8s.lan:

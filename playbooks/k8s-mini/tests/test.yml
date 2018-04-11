@@ -14,7 +14,6 @@
             - 10.32.0.1
             - 10.240.0.254
             - "*.k8s.lan"
-
       tags:
         - cfssl
 
@@ -29,13 +28,16 @@
       tags:
         - etcd
 
-- name: deploy kubernetes components for masters
-  hosts: masters
+- name: deploy kubernetes components
+  hosts:
+    - masters
+    - workers
   roles:
-    - role: k8s-master
+    - role: k8s
       vars:
-        kube_master_certs_path: /var/lib/kubernetes/certs
-        kube_master_api_server: https://apiserver.k8s.lan:6443
+        kube_certs_path: /var/lib/kubernetes/certs
+        kube_api_server: https://apiserver.k8s.lan:6443
+        kube_use_local_binaries: yes
         kube_apiserver:
           service_force_restart: yes
           etcd_members: "{{ groups['etcd'] }}"
@@ -43,19 +45,11 @@
           service_force_restart: yes
         kube_scheduler:
           service_force_restart: yes
-      tags:
-        - k8s-master
-
-- name: deploy kubernetes components for workers
-  hosts: workers
-  roles:
-    - role: k8s-worker
-      vars:
-        kube_worker_certs_path: /var/lib/kubernetes/certs
-        kube_worker_api_server: https://apiserver.k8s.lan:6443
         docker:
           storage_driver: overlay
           cert_enable: yes
+          insecured_registries:
+            - host-registry.k8s.lan:5000
         kubelet:
           service_force_restart: yes
           fail_swap_on: no
@@ -66,7 +60,7 @@
           service_force_restart: yes
           master_host: https://apiserver.k8s.lan:6443
       tags:
-        - k8s-worker
+        - k8s
 
 #--------------------------------------
 # configure localhost kernel parameters
