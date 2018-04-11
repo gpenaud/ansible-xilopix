@@ -14,3 +14,6 @@ ipmasq_enabled: no
 host: unix:///var/run/docker.sock
 log_level: error
 storage_driver: aufs
+
+cert_enable: no
+cert_fqdn: docker.k8s.lan
