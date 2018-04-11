@@ -1,0 +1,13 @@
+kube_package_version: 1.9.6
+kube_release_url: "https://storage.googleapis.com/kubernetes-release/release/v{{ kube_package_version }}/bin/linux/amd64"
+kube_kubectl_package_url: "{{ kube_release_url }}/kubectl"
+kube_binary_path: /usr/local/bin
+kube_conf_path: /etc/kubernetes
+kube_data_dir: /var/lib/kubernetes
+kube_api_server: https://apiserver.k8s.lan
+kube_ressources_path: "{{ kube_data_dir }}/ressources"
+kube_certs_path: "{{ kube_data_dir }}/certs"
+kube_kubeconfig_path: "{{ kube_data_dir }}"
+kube_tls_cert_file: "{{ kube_certs_path }}/kubernetes.pem"
+kube_tls_key_file: "{{ kube_certs_path }}/kubernetes-key.pem"
+kube_ca_cert_file: "{{ kube_certs_path }}/ca.pem"
