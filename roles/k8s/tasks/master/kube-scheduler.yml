@@ -1,0 +1,67 @@
+---
+
+- name: scheduler / install - create mandatory directories
+  file:
+    state: directory
+    path: "{{ directory }}"
+  with_items:
+    - "{{ kube_scheduler.binary_path }}"
+    - "{{ kube_apiserver.conf_path }}"
+  loop_control:
+    loop_var: directory
+  become: yes
+
+- name: scheduler / install - download kube-scheduler binary
+  get_url:
+    url: "{{ kube_scheduler.package_url }}"
+    dest: "{{ kube_scheduler.binary_path }}/kube-scheduler"
+    mode: 0755
+  become: yes
+  when: "not {{ kube_use_local_binaries }}"
+
+- name: scheduler / install - copy kube-scheduler
+  copy:
+    src: "{{ kube_local_binaries_path }}/kube-scheduler"
+    dest: "{{ kube_scheduler.binary_path }}/kube-scheduler"
+    mode: 0755
+  become: yes
+  when: "{{ kube_use_local_binaries }}"
+
+- name: scheduler / configure - copy kubeconfig configuration for scheduler
+  copy:
+    content: "{{ kube_scheduler.configuration | to_nice_yaml }}"
+    dest: "{{ kube_master_kubeconfig_path }}/kubeconfig-scheduler"
+  become: yes
+
+- name: scheduler / configure - define systemd environment file for scheduler
+  template:
+    src: "../templates/master/configuration/{{ file }}.j2"
+    dest: "/etc/kubernetes/{{ file }}"
+  notify:
+    - restart kube-scheduler
+  with_items:
+    - master
+    - scheduler
+  loop_control:
+    loop_var: file
+  become: yes
+
+- name: scheduler / configure - define systemd service for etcd
+  template:
+    src: ../templates/master/systemd/kube-scheduler.service.j2
+    dest: /etc/systemd/system/kube-scheduler.service
+  notify:
+    - restart kube-scheduler
+  become: yes
+
+- name: scheduler - enable kube-scheduler service
+  service:
+    name: kube-scheduler
+    state: started
+    enabled: yes
+  become: yes
+
+- name: scheduler - restart kube-scheduler on condition
+  command: /bin/true
+  notify: restart kube-scheduler
+  when: kube_scheduler.service_force_restart

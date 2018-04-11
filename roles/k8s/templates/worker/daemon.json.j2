@@ -1,0 +1,5 @@
+{
+  {% if docker.insecured_registries %}
+  "insecure-registries":{{ docker.insecured_registries | to_nice_json }}
+  {% endif %}
+}

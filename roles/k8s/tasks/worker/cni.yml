@@ -1,0 +1,34 @@
+---
+
+- name: install - test cni plugin presence
+  stat:
+    path: "{{ cni.plugin_path }}/bin"
+  register: cni_plugin
+
+- name: install - create data directory for cni plugin
+  file:
+    state: directory
+    path: "{{ item }}"
+  with_items:
+    - "{{ cni.plugin_path }}/bin"
+    - "{{ cni.conf_path }}"
+  become: yes
+
+- name: install - install cni plugin
+  unarchive:
+    src: "{{ cni.package_url }}/v{{ cni.package_version }}/cni-plugins-amd64-v{{ cni.package_version }}.tgz"
+    dest: "{{ cni.plugin_path }}/bin"
+    remote_src: yes
+  become: yes
+  when:
+    - not "{{ kube_use_local_binaries }}"
+    - not cni_plugin.stat.exists
+
+- name: install - copy and install cni plugin
+  unarchive:
+    src: "{{ kube_local_binaries_path }}/cni-plugins-amd64-v{{ cni.package_version }}.tgz"
+    dest: "{{ cni.plugin_path }}/bin"
+  become: yes
+  when:
+    - "{{ kube_use_local_binaries }}"
+    - not cni_plugin.stat.exists

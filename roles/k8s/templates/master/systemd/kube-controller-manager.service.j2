@@ -1,0 +1,27 @@
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/master
+EnvironmentFile=-/etc/kubernetes/controller-manager
+
+ExecStart={{ kube_controller_manager.binary_path }}/kube-controller-manager \
+  $KUBE_CM_ALLOCATE_NODE_CIDRS \
+  $KUBE_CM_CLUSTER_NAME \
+  $KUBE_CM_CLUSTER_CIDR \
+  $KUBE_CM_MASTER \
+  $KUBE_CM_LEADER_ELECT \
+  $KUBE_CM_SERVICE_CLUSTER_IP_RANGE \
+  $KUBE_CM_SERVICE_ACCOUNT_PRIVATE_KEY_FILE \
+  $KUBE_CM_ROOT_CA_FILE \
+  $KUBE_CM_KUBECONFIG \
+  $KUBE_LOG_LEVEL \
+  $KUBE_LOGTOSTDERR \
+  $KUBE_CM_ARGS
+
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

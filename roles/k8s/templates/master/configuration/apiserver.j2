@@ -1,0 +1,26 @@
+# ---------------------------
+# kubernetes apiserver config
+# ---------------------------
+
+KUBE_API_BIND_ADDRESS="--bind-address={{ kube_apiserver.bind_address }}"
+KUBE_API_INSECURE_BIND_ADDRESS="--insecure-bind-address={{ kube_apiserver.insecure_bind_address }}"
+KUBE_API_ADMISSION_CONTROL="--admission-control={{ kube_apiserver.admission_control | join(',') }}"
+KUBE_API_ADVERTISE_ADDRESS="--advertise-address={{ ansible_default_ipv4.address }}"
+KUBE_API_ALLOW_PRIVILEGED="--allow-privileged={{ kube_apiserver.allow_privilege | lower }}"
+KUBE_API_APISERVER_COUNT="--apiserver-count={{ kube_apiserver.count }}"
+KUBE_API_AUTHORIZATION_MODE="--authorization-mode={{ kube_apiserver.authorization_mode }}"
+KUBE_API_AUTHORIZATION_POLICY_FILE="--authorization-policy-file={{ kube_apiserver.authorization_policy_file }}"
+KUBE_API_ENABLE_SWAGGER_UI="--enable-swagger-ui={{ kube_apiserver.enable_swagger_ui | lower }}"
+KUBE_API_ETCD_CAFILE="--etcd-cafile={{ kube_master_tls_ca }}"
+KUBE_API_SERVICE_ACCOUNT_KEY_FILE="--service-account-key-file={{ kube_master_tls_key }}"
+KUBE_API_SERVICE_CLUSTER_IP_RANGE="--service-cluster-ip-range={{ kube_apiserver.service_cluster_ip_range }}"
+KUBE_API_SERVICE_NODE_PORT_RANGE="--service-node-port-range={{ kube_apiserver.service_node_port_range }}"
+KUBE_API_ETCD_SERVERS="--etcd-servers={{ etcd_servers | replace(',\n', '') }}"
+KUBE_API_TLS_CA_FILE="--tls-ca-file={{ kube_master_tls_ca }}"
+KUBE_API_TLS_CERT_FILE="--tls-cert-file={{ kube_master_tls_cert }}"
+KUBE_API_TLS_PRIVATE_KEY_FILE="--tls-private-key-file={{ kube_master_tls_key }}"
+KUBE_API_TOKEN_AUTH_FILE="--token-auth-file={{ kube_apiserver.token_auth_file }}"
+
+# Add your own!
+KUBE_API_ARGS=""
+

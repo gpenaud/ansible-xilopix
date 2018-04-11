@@ -1,0 +1,35 @@
+---
+
+- name: install - test kubernetes binaries presence
+  stat:
+    path: "{{ kube_local_binaries_path }}"
+  register: k8s_binaries
+  delegate_to: localhost
+
+- block:
+  - name: install - create data directory for kubernetes binaries
+    file:
+      state: directory
+      path: "{{ kube_local_binaries_path }}"
+
+  - name: download kubernetes binaries
+    script: files/download-binaries.sh
+    environment:
+      OUTPUT_PATH: "{{ kube_local_binaries_path }}"
+  delegate_to: localhost
+  run_once: yes
+  when: not k8s_binaries.stat.exists
+
+- name: master - include master installation steps
+  include: master/main.yml
+  tags:
+    - master
+    - k8s-master
+  when: inventory_hostname in groups['masters']
+
+- name: worker - include worker installation steps
+  include: worker/main.yml
+  tags:
+    - worker
+    - k8s-worker
+  when: inventory_hostname in groups['workers']

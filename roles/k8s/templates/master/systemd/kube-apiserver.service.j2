@@ -1,0 +1,39 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target
+After=etcd.service
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/master
+EnvironmentFile=-/etc/kubernetes/apiserver
+User=root
+
+ExecStart={{ kube_apiserver.binary_path }}/kube-apiserver \
+  $KUBE_API_BIND_ADDRESS \
+  $KUBE_API_INSECURE_BIND_ADDRESS \
+  $KUBE_API_ADMISSION_CONTROL \
+  $KUBE_API_ADVERTISE_ADDRESS \
+  $KUBE_API_ALLOW_PRIVILEGED \
+  $KUBE_API_APISERVER_COUNT \
+  $KUBE_API_AUTHORIZATION_MODE \
+  $KUBE_API_AUTHORIZATION_POLICY_FILE \
+  $KUBE_API_ENABLE_SWAGGER_UI \
+  $KUBE_API_ETCD_CAFILE \
+  $KUBE_API_SERVICE_ACCOUNT_KEY_FILE \
+  $KUBE_API_SERVICE_CLUSTER_IP_RANGE \
+  $KUBE_API_SERVICE_NODE_PORT_RANGE \
+  $KUBE_API_ETCD_SERVERS \
+  $KUBE_API_TLS_CA_FILE \
+  $KUBE_API_TLS_CERT_FILE \
+  $KUBE_API_TLS_PRIVATE_KEY_FILE \
+  $KUBE_LOG_LEVEL \
+  $KUBE_LOGTOSTDERR \
+  $KUBE_API_ARGS
+
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

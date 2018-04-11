@@ -1,0 +1,45 @@
+---
+#-----------------------------------------
+# Kubelet variables for kubernetes workers
+#-----------------------------------------
+package_url: "{{ kube_worker_release_url }}/kubelet"
+binary_path: "{{ kube_worker_binary_path }}"
+certs_path: "{{ kube_worker_certs_path }}"
+conf_path: "{{ kube_worker_conf_path }}"
+kubeconfig_path: "{{ kube_worker_kubeconfig_path }}"
+service_force_restart: no
+cloud_provider:
+cluster_dns: 10.32.0.10
+cluster_domain: cluster.local
+configure_cbr0: yes
+container_runtime: docker
+docker: unix:///var/run/docker.sock
+network_plugin: cni
+
+reconcile_cidr: yes
+serialize_image_pulls: no
+fail_swap_on: yes
+verbosity: 2
+service_force_restart: no
+
+# Kubeconfig for kubelet
+configuration:
+  apiVersion: v1
+  kind: Config
+  users:
+  - name: "{{ kubeconfig_name }}"
+    user:
+      client-certificate: "{{ kube_worker_tls_cert }}"
+      client-key: "{{ kube_worker_tls_key }}"
+      token: "{{ kubeconfig_user_token }}"
+  clusters:
+  - name: "{{ kubeconfig_name }}"
+    cluster:
+      certificate-authority: "{{ kube_worker_tls_ca }}"
+      server: "{{ kubeconfig_api_server }}"
+  contexts:
+  - context:
+      cluster: "{{ kubeconfig_name }}"
+      user: kubelet
+    name: kubelet
+  current-context: kubelet

@@ -1,0 +1,10 @@
+# ---------------------------
+# kubernetes scheduler config
+# ---------------------------
+
+KUBE_SCDL_LEADER_ELECT="--leader-elect={{ kube_scheduler.leader_elect | lower }}"
+KUBE_SCDL_KUBECONFIG="--kubeconfig={{ kube_master_kubeconfig_path }}/kubeconfig-scheduler"
+
+# Add your own!
+KUBE_SCDL_ARGS=""
+

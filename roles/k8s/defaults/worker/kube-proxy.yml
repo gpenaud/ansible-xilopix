@@ -1,0 +1,36 @@
+---
+#-----------------------------------------------
+# Kube-proxy variables for workers configuration
+#-----------------------------------------------
+package_url: "{{ kube_worker_release_url }}/kube-proxy"
+binary_path: "{{ kube_worker_binary_path }}"
+certs_path: "{{ kube_worker_certs_path }}"
+conf_path: "{{ kube_worker_conf_path }}"
+kubeconfig_path: "{{ kube_worker_kubeconfig_path }}"
+
+service_force_restart: no
+proxy_mode: iptables
+verbosity: 2
+service_force_restart: no
+
+# Kubeconfig for kube-proxy
+configuration:
+  apiVersion: v1
+  kind: Config
+  users:
+  - name: "{{ kubeconfig_name }}"
+    user:
+      client-certificate: "{{ kube_worker_tls_cert }}"
+      client-key: "{{ kube_worker_tls_key }}"
+      token: "{{ kubeconfig_user_token }}"
+  clusters:
+  - name: "{{ kubeconfig_name }}"
+    cluster:
+      certificate-authority: "{{ kube_worker_tls_ca }}"
+      server: "{{ kubeconfig_api_server }}"
+  contexts:
+  - context:
+      cluster: "{{ kubeconfig_name }}"
+      user: kube-proxy
+    name: kube-proxy
+  current-context: kube-proxy

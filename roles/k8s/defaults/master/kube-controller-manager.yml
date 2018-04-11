@@ -1,0 +1,38 @@
+#-----------------------------------------
+# Set controller-manager default variables
+#-----------------------------------------
+package_url: "{{ kube_master_release_url }}/kube-controller-manager"
+service_force_restart: no
+binary_path: "{{ kube_master_binary_path }}"
+conf_path: "{{ kube_master_conf_path }}"
+data_dir: "{{ kube_master_data_dir }}"
+allocate_node_cidrs: yes
+cluster_cidr: 10.200.0.0/16
+cluster_name: kubernetes
+master: "{{ kube_master_api_server }}"
+leader_elect: yes
+service_cluster_ip_range: 10.32.0.0/16
+service_force_restart: no
+verbosity: 2
+
+# Kubeconfig for controller-manager
+configuration:
+  apiVersion: v1
+  kind: Config
+  users:
+  - name: kubernetes
+    user:
+      client-certificate: "{{ kube_master_tls_cert }}"
+      client-key: "{{ kube_master_tls_key }}"
+      token: hbgith7aWi1aegheifeRhdaiLahVie3z
+  clusters:
+  - name: kubernetes
+    cluster:
+      certificate-authority: "{{ kube_master_tls_ca }}"
+      server: "{{ kube_master_api_server }}"
+  contexts:
+  - context:
+      cluster: kubernetes
+      user: controller-manager
+    name: controller-manager
+  current-context: controller-manager
