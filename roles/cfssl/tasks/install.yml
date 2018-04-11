@@ -49,4 +49,3 @@
       chdir: "{{ cfssl_generation_local_certs_path }}"
       executable: /bin/bash
   delegate_to: localhost
-  when: cfssl_force

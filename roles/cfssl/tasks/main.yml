@@ -11,14 +11,16 @@
     path: "{{ cfssl_certs_path }}"
   register: cert_directory
 
-- block:
-  - name: main - install cloudflare
-    include: install.yml
-    tags:
-      - install
+- name: main - install cloudflare and generate certificates locally
+  include: install.yml
+  tags:
+    - install
+  when:
+    - cfssl_force or not cert_directory.stat.exists
+    - not cfssl_upload_only
 
-  - name: main - upload cloudflare certificates
-    include: upload.yml
-    tags:
-      - upload
+- name: main - upload cloudflare certificates
+  include: upload.yml
+  tags:
+    - upload
   when: cfssl_force or not cert_directory.stat.exists
