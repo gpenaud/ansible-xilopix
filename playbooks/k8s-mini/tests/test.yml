@@ -6,14 +6,14 @@
     - role: cfssl
       vars:
         cfssl_force: yes
+        # cfssl_upload_only: yes
         cfssl_certs_path: /var/lib/kubernetes/certs
         cfssl_clients_csr:
           hosts:
             - 127.0.0.1
             - 10.32.0.1
             - 10.240.0.254
-            - apiserver.k8s.lan
-            - docker.k8s.lan
+            - "*.k8s.lan"
 
       tags:
         - cfssl
@@ -55,6 +55,7 @@
         kube_worker_api_server: https://apiserver.k8s.lan:6443
         docker:
           storage_driver: overlay
+          cert_enable: yes
         kubelet:
           service_force_restart: yes
           fail_swap_on: no
@@ -94,10 +95,10 @@
         shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/network.yml
       - name: ressources - deploy dns to kubernetes cluster
         shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/dns.yml
-      - name: ressources - deploy loadbalancer traefik to kubernetes cluster
-        shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/traefik.yml
-      - name: ressources - deploy dashboard to kubernetes cluster
-        shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/dashboard.yml
+      # - name: ressources - deploy loadbalancer traefik to kubernetes cluster
+      #   shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/traefik.yml
+      #- name: ressources - deploy dashboard to kubernetes cluster
+      #  shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/dashboard.yml
       no_log: yes
       ignore_errors: yes
       delegate_to: "{{ groups['masters'] | first }}"
