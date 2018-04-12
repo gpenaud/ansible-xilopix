@@ -25,7 +25,7 @@
     dest: "{{ kube_apiserver.binary_path }}/kube-apiserver"
     mode: 0755
   become: yes
-  when: "not {{ kube_use_local_binaries }}"
+  when: not kube_use_local_binaries
 
 - name: apiserver / install - copy kube-apiserver binary
   copy:
@@ -33,7 +33,7 @@
     dest: "{{ kube_apiserver.binary_path }}/kube-apiserver"
     mode: 0755
   become: yes
-  when: "{{ kube_use_local_binaries }}"
+  when: kube_use_local_binaries
 
 - name: apiserver / policies - upload authorization policy file
   copy:

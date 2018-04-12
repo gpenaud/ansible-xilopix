@@ -62,6 +62,14 @@
       tags:
         - k8s
 
+# - name: deploy fluentd
+#   hosts:
+#     - workers
+#   roles:
+#     - role: fluentd
+#       vars:
+#         fluentd_service_force_restart: yes
+
 #--------------------------------------
 # configure localhost kernel parameters
 # -------------------------------------

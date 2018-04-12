@@ -18,7 +18,7 @@
     dest: "{{ kube_controller_manager.binary_path }}/kube-controller-manager"
     mode: 0755
   become: yes
-  when: "not {{ kube_use_local_binaries }}"
+  when: not kube_use_local_binaries
 
 - name: controller-manager / install - copy kube-controller-manager
   copy:
@@ -26,7 +26,7 @@
     dest: "{{ kube_controller_manager.binary_path }}/kube-controller-manager"
     mode: 0755
   become: yes
-  when: "{{ kube_use_local_binaries }}"
+  when: kube_use_local_binaries
 
 - name: controller-manager / configure - copy kubeconfig configuration for controller-manager
   copy:

@@ -18,7 +18,7 @@
     dest: "{{ kube_proxy.binary_path }}/kube-proxy"
     mode: 0755
   become: yes
-  when: "not {{ kube_use_local_binaries }}"
+  when: not kube_use_local_binaries
 
 - name: kube-proxy / install - copy kube-proxy
   copy:
@@ -26,7 +26,7 @@
     dest: "{{ kube_proxy.binary_path }}/kube-proxy"
     mode: 0755
   become: yes
-  when: "{{ kube_use_local_binaries }}"
+  when: kube_use_local_binaries
 
 - name: kube-proxy / configure - copy kubeconfig configuration
   copy:

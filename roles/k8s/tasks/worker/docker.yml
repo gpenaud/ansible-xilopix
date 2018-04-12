@@ -18,13 +18,13 @@
       src: "{{ docker.release_url }}/docker-{{ docker.version }}.tgz"
       dest: "{{ docker.src_temp_path }}"
       remote_src: yes
-    when: "not {{ kube_use_local_binaries }}"
+    when: not kube_use_local_binaries
 
   - name: docker / install - copy and extract docker tarball
     unarchive:
       src: "{{ kube_local_binaries_path }}/docker-{{ docker.version }}.tgz"
       dest: "{{ docker.src_temp_path }}"
-    when: "{{ kube_use_local_binaries }}"
+    when: kube_use_local_binaries
 
   - name: docker / install - move docker binaries then clean /tmp
     shell: |

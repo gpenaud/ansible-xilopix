@@ -18,7 +18,7 @@
     dest: "{{ kubelet.binary_path }}/kubelet"
     mode: 0755
   become: yes
-  when: "not {{ kube_use_local_binaries }}"
+  when: not kube_use_local_binaries
 
 - name: kubelet / install - copy kubelet
   copy:
@@ -26,7 +26,7 @@
     dest: "{{ kubelet.binary_path }}/kubelet"
     mode: 0755
   become: yes
-  when: "{{ kube_use_local_binaries }}"
+  when: kube_use_local_binaries
 
 - name: kubelet / configure - copy kubeconfig configuration
   copy:

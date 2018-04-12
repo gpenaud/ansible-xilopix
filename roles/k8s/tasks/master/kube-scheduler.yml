@@ -17,7 +17,7 @@
     dest: "{{ kube_scheduler.binary_path }}/kube-scheduler"
     mode: 0755
   become: yes
-  when: "not {{ kube_use_local_binaries }}"
+  when: not kube_use_local_binaries
 
 - name: scheduler / install - copy kube-scheduler
   copy:
@@ -25,7 +25,7 @@
     dest: "{{ kube_scheduler.binary_path }}/kube-scheduler"
     mode: 0755
   become: yes
-  when: "{{ kube_use_local_binaries }}"
+  when: kube_use_local_binaries
 
 - name: scheduler / configure - copy kubeconfig configuration for scheduler
   copy:
