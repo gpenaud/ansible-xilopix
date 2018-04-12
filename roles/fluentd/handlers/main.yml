@@ -1,0 +1,8 @@
+---
+
+- name: restart fluentd
+  systemd:
+    name: fluentd
+    daemon_reload: yes
+    state: restarted
+  become: yes

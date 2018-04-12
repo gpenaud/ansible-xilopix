@@ -1,0 +1,22 @@
+
+- name: fluentd / install - create temporary directory
+  file:
+    state: directory
+    path: "{{ directory }}"
+  with_items:
+    - "{{ fluentd_install_script_path }}"
+    - "{{ fluentd_conf_path }}"
+  loop_control:
+    loop_var: directory
+  become: yes
+
+- name: fluentd / install - downlaod td-agent installation script
+  get_url:
+    url: "{{ fluentd_install_script_url }}"
+    dest: "{{ fluentd_install_script_path }}/install.sh"
+    mode: 0755
+  become: yes
+
+- name: fluentd / install - install td-agent
+  shell: /bin/bash "{{ fluentd_install_script_path }}/install.sh"
+  become: yes

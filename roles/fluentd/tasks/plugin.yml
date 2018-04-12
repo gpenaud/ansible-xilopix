@@ -1,0 +1,22 @@
+
+- name: fluentd / plugin - install required package for gem installation
+  apt:
+    state: present
+    name: "{{ package }}"
+  with_items:
+    - make
+    - gcc
+    - g++
+    - libc-dev
+    - ruby-dev
+    - libffi-dev
+  loop_control:
+    loop_var: package
+
+- name: fluentd / plugin - install plugins through gem
+  shell: "/usr/sbin/td-agent-gem install {{ plugin.name }}"
+  with_items: "{{ fluentd_plugins }}"
+  loop_control:
+    loop_var: plugin
+  notify:
+    - restart fluentd

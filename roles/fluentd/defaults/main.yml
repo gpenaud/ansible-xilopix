@@ -1,0 +1,19 @@
+
+fluentd_install_script_url: https://toolbelt.treasuredata.com/sh/install-debian-stretch-td-agent2.sh
+fluentd_install_script_path: /tmp/fluentd
+fluentd_service_force_restart: no
+fluentd_conf_path: /etc/fluent
+
+fluentd_plugins:
+  - name: fluent-plugin-secure-forward
+  - name: fluent-plugin-grep
+  - name: fluent-plugin-parser
+  - name: fluent-plugin-record-reformer
+  - name: fluent-plugin-detect-exceptions
+    version: 0.0.9
+  - name: fluent-plugin-elasticsearch
+    version: "<2"
+  - name: fluent-plugin-kubernetes_metadata_filter
+  - name: ffi
+  - name: fluent-plugin-systemd
+    version: 0.0.8

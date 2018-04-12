@@ -1,0 +1,19 @@
+
+- name: main - include installation part
+  include: install.yml
+  tags:
+    - fluentd
+    - fluentd/install
+
+- name: main - include plugin installation part
+  include: plugin.yml
+  tags:
+    - fluentd
+    - fluentd/plugin
+  become: yes
+
+- name: main - include configuration part
+  include: configure.yml
+  tags:
+    - fluentd
+    - fluentd/configure
