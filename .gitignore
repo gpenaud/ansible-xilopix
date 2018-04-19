@@ -2,4 +2,3 @@ retries
 *.retry
 .credentials
 .vagrant
-k8s.conf

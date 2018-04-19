@@ -12,7 +12,7 @@ service_force_restart: no
 admission_control:
   - NamespaceLifecycle
   - LimitRanger
-  - SecurityContextDeny
+  # - SecurityContextDeny
   - ServiceAccount
   - ResourceQuota
 

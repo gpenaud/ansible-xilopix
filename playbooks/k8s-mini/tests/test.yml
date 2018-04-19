@@ -88,19 +88,11 @@
 #-----------------------------
 # deploy kubernetes components
 # ----------------------------
-- name: deploy kubernetes components for masters
+- name: deploy kubernetes components
   hosts: masters
   tasks:
-    - name: ressources - deploy system components to kubernetes cluster
-      block:
-      - name: ressources - deploy network to kubernetes cluster
-        shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/network.yml
-      - name: ressources - deploy dns to kubernetes cluster
-        shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/dns.yml
-      # - name: ressources - deploy loadbalancer traefik to kubernetes cluster
-      #   shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/traefik.yml
-      #- name: ressources - deploy dashboard to kubernetes cluster
-      #  shell: /usr/local/bin/kubectl create -f /var/lib/kubernetes/ressources/system/dashboard.yml
+    - name: ressources - deploy initialisation components to kubernetes cluster
+      shell: /usr/local/bin/kubectl create -R -f /var/lib/kubernetes/ressources/initialisation
       no_log: yes
       ignore_errors: yes
       delegate_to: "{{ groups['masters'] | first }}"
